@@ -58,11 +58,14 @@ Set theme preference attribute:
 ```html
 <web-inquiry-form theme="light" api-url="https://your-api-endpoint.com/api/leads"></web-inquiry-form>
 ```
+![Light theme image](assets/light.webp)
+
 _or_
 
 ```html
 <web-inquiry-form theme="dark" api-url="https://your-api-endpoint.com/api/leads"></web-inquiry-form>
 ```
+![Dark theme image](assets/dark.webp)
 
 _or_
 
