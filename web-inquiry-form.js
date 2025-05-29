@@ -245,7 +245,7 @@ class WebInquiryForm extends HTMLElement {
         /* Toast notification styling */
         .toast-notification {
           position: fixed;
-          top: 20px;
+          bottom: 20px;
           right: 20px;
           background-color: #d4edda;
           color: #155724;
