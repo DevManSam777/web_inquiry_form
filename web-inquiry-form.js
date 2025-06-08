@@ -158,27 +158,34 @@ class WebInquiryForm extends HTMLElement {
         }
 
         .section-content {
+          border: none;
+          border-radius: 0;
+          padding: 0;
+          margin-bottom: 0;
+          background-color: transparent;
+          position: relative;
+        }
+
+        fieldset {
           border: 1px solid #aaa;
           border-radius: 6px;
           padding: 20px;
           margin-bottom: 25px;
           background-color: #fafbfc;
-          position: relative;
         }
 
-        .section-title {
+        legend {
           font-size: 18px;
           font-weight: bold;
-          text-align: center;
-          padding: 0 15px;
-          margin-bottom: -12px;
+          color: #2c3e50;
+          padding: 0 10px;
         }
 
         .section-subtitle {
           color: #666;
-          font-size: 14px;
+          font-size: 16px;
           text-align: center;
-          margin-bottom: 20px;
+          margin-top: -10px;
         }
 
         .form-group {
@@ -446,11 +453,14 @@ class WebInquiryForm extends HTMLElement {
           color: #e9ecef;
         }
 
-        .dark-mode .section-content {
+        .dark-mode fieldset {
           background-color: #252830;
           border-color: #495057;
         }
 
+        .dark-mode legend {
+          color: #f8f9fa;
+        }
 
         .dark-mode .progress-section {
           background-color: #252830;
@@ -525,11 +535,11 @@ class WebInquiryForm extends HTMLElement {
             font-size: 20px;
           }
 
-          .section-content {
-            padding: 25px 15px 15px 15px;
+          fieldset {
+            padding: 15px;
           }
 
-          .section-title {
+          legend {
             font-size: 16px;
           }
 
@@ -592,11 +602,11 @@ class WebInquiryForm extends HTMLElement {
             font-size: 12px;
           }
 
-          .section-content {
-            padding: 20px 10px 10px 10px;
+          fieldset {
+            padding: 10px;
           }
 
-          .section-title {
+          legend {
             font-size: 14px;
           }
 
@@ -673,9 +683,9 @@ class WebInquiryForm extends HTMLElement {
         <form id="inquiry-form">
           <!-- Step 1: Personal Information -->
           <div class="section active" data-step="0">
-            <div class="section-content">
-              <h2 class="section-title">Personal Information</h2>
-              <p class="section-subtitle">Tell us about yourself</p>
+            <fieldset>
+              <legend>Personal Information</legend>
+              <p class="section-subtitle">Tell us about yourself!</p>
 
               <div class="form-group">
                 <label for="firstName" class="required">First Name</label>
@@ -714,14 +724,14 @@ class WebInquiryForm extends HTMLElement {
                 <label for="textNumber">Text Number (if different)</label>
                 <input type="tel" id="textNumber" name="textNumber" />
               </div>
-            </div>
+            </fieldset>
           </div>
 
           <!-- Step 2: Business Information -->
           <div class="section" data-step="1">
-            <div class="section-content">
-              <h2 class="section-title">Business Information</h2>
-              <p class="section-subtitle">Tell us about your business</p>
+            <fieldset>
+              <legend>Business Information</legend>
+              <p class="section-subtitle">Tell us about your business!</p>
 
               <div class="form-group">
                 <label for="businessName">Business Name</label>
@@ -755,13 +765,13 @@ class WebInquiryForm extends HTMLElement {
                 <label for="businessServices">Business Services</label>
                 <textarea id="businessServices" name="businessServices" placeholder="What type of goods and/or services does your business provide?"></textarea>
               </div>
-            </div>
+            </fieldset>
           </div>
 
           <!-- Step 3: Billing Address -->
           <div class="section" data-step="2">
-            <div class="section-content">
-              <h2 class="section-title">Billing Address</h2>
+            <fieldset>
+              <legend>Billing Address</legend>
               <p class="section-subtitle">What is your mailing address?</p>
 
               <div class="form-group">
@@ -794,13 +804,13 @@ class WebInquiryForm extends HTMLElement {
                 <label for="billingCountry" class="required">Country</label>
                 <input type="text" id="billingCountry" name="billingCountry" value="USA" required />
               </div>
-            </div>
+            </fieldset>
           </div>
 
           <!-- Step 4: Service Details -->
           <div class="section" data-step="3">
-            <div class="section-content">
-              <h2 class="section-title">Service Details</h2>
+            <fieldset>
+              <legend>Service Details</legend>
               <p class="section-subtitle">What can we help you with?</p>
 
               <div class="form-group">
@@ -868,19 +878,19 @@ class WebInquiryForm extends HTMLElement {
                 <label for="message">Message</label>
                 <textarea id="message" name="message" placeholder="Additional comments"></textarea>
               </div>
-            </div>
+            </fieldset>
           </div>
 
           <!-- Step 5: Review -->
           <div class="section" data-step="4">
-            <div class="section-content">
-              <h2 class="section-title">Review Your Information</h2>
+            <fieldset>
+              <legend>Review Your Information</legend>
               <p class="section-subtitle">Please review your details before submitting</p>
 
               <div class="review-container" id="reviewContainer">
                 <!-- Review content will be populated here -->
               </div>
-            </div>
+            </fieldset>
           </div>
 
           <div class="navigation">
