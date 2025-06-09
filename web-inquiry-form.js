@@ -361,23 +361,35 @@ class WebInquiryForm extends HTMLElement {
           background-color: rgba(76, 175, 80, 0.05);
         }
 
-         .toast-notification {Add commentMore actions
+        .toast {
           position: fixed;
           bottom: 200px;
           right: 20px;
-          background-color: #d4edda;
-          color: #155724;
+          background: #4caf50;
+          color: white;
           padding: 15px 20px;
-          border-radius: 4px;
-          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+          border-radius: 6px;
+          box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
           z-index: 1000;
-          transform: translateX(110%);
-          transition: transform 0.3s ease-in-out;
-          max-width: 300px;
+          transform: translateX(100%);
+          transition: transform 0.3s ease, opacity 0.3s ease;
+          opacity: 1;
+          font-family: inherit;
+          font-size: 14px;
+          font-weight: 500;
+          min-width: 200px;
+          max-width: 400px;
+          word-wrap: break-word;
+          display: block;
         }
 
         .toast.show {
           transform: translateX(0);
+        }
+
+        .toast.hide {
+          opacity: 0;
+          transform: translateX(100%);
         }
 
         .toast.error {
@@ -1238,19 +1250,41 @@ class WebInquiryForm extends HTMLElement {
   }
 
   showToast(message, isError = false) {
-    let toast = this.shadowRoot.getElementById("toast");
-    if (!toast) {
-      toast = document.createElement("div");
-      toast.id = "toast";
-      toast.className = "toast";
-      this.shadowRoot.appendChild(toast);
+    // Remove any existing toast
+    const existingToast = this.shadowRoot.querySelector('.toast');
+    if (existingToast) {
+      existingToast.remove();
     }
 
+    // Create toast element
+    const toast = document.createElement('div');
+    toast.className = 'toast';
     toast.textContent = message;
-    toast.className = `toast ${isError ? "error" : ""}`;
+    
+    if (isError) {
+      toast.classList.add('error');
+    }
 
-    setTimeout(() => toast.classList.add("show"), 10);
-    setTimeout(() => toast.classList.remove("show"), 5000);
+    // Add to shadow DOM
+    this.shadowRoot.appendChild(toast);
+
+    // Trigger animation after a brief delay to ensure element is in DOM
+    setTimeout(() => {
+      toast.classList.add('show');
+    }, 50);
+    
+    // Auto-hide after 5 seconds
+    setTimeout(() => {
+      toast.classList.remove('show');
+      toast.classList.add('hide');
+      
+      // Remove element after animation completes
+      setTimeout(() => {
+        if (toast.parentNode) {
+          toast.remove();
+        }
+      }, 300);
+    }, 5000);
   }
 
   populateReview() {
