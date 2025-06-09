@@ -672,23 +672,23 @@ class WebInquiryForm extends HTMLElement {
           <div class="step-indicators">
             <div class="step-indicator active" data-step="0">
               <div class="step-dot">1</div>
-              // <span>Personal</span>
+               <span>Personal</span>
             </div>
             <div class="step-indicator" data-step="1">
               <div class="step-dot">2</div>
-              // <span>Business</span>
+               <span>Business</span>
             </div>
             <div class="step-indicator" data-step="2">
               <div class="step-dot">3</div>
-              <span>Billing</span>
+              <span>Address</span>
             </div>
             <div class="step-indicator" data-step="3">
               <div class="step-dot">4</div>
-              // <span>Service</span>
+               <span>Service</span>
             </div>
             <div class="step-indicator" data-step="4">
               <div class="step-dot">5</div>
-              // <span>Review</span>
+               <span>Review</span>
             </div>
           </div>
         </div>
