@@ -937,6 +937,21 @@ class WebInquiryForm extends HTMLElement {
     nextBtn.addEventListener("click", () => this.nextStep());
     prevBtn.addEventListener("click", () => this.prevStep());
 
+    // Prevent premature form submission on Enter key
+    form.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        
+        // If we're on the last step (review), allow submission
+        if (this.currentStep === this.totalSteps - 1) {
+          form.dispatchEvent(new Event("submit"));
+        } else {
+          // Otherwise, try to go to next step
+          this.nextStep();
+        }
+      }
+    });
+
     // Form submission
     form.addEventListener("submit", this.handleFormSubmit.bind(this));
     submitBtn.addEventListener("click", (e) => {
