@@ -363,7 +363,7 @@ class WebInquiryForm extends HTMLElement {
 
         .toast {
           position: fixed;
-          bottom: 200px;
+          bottom: 350px;
           right: 20px;
           background: #4caf50;
           color: white;
