@@ -361,18 +361,19 @@ class WebInquiryForm extends HTMLElement {
           background-color: rgba(76, 175, 80, 0.05);
         }
 
-        .toast {
+         .toast-notification {Add commentMore actions
           position: fixed;
-          top: 20px;
+          bottom: 200px;
           right: 20px;
-          background: #4caf50;
-          color: white;
+          background-color: #d4edda;
+          color: #155724;
           padding: 15px 20px;
           border-radius: 4px;
           box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
           z-index: 1000;
-          transform: translateX(100%);
-          transition: transform 0.3s ease;
+          transform: translateX(110%);
+          transition: transform 0.3s ease-in-out;
+          max-width: 300px;
         }
 
         .toast.show {
