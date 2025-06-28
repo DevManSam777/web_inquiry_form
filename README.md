@@ -58,14 +58,14 @@ Set theme preference attribute:
 ```html
 <web-inquiry-form theme="light" api-url="https://your-api-endpoint.com/api/leads"></web-inquiry-form>
 ```
-![Light theme image](assets/light.webp)
+![Light theme image](assets/form1.png)
 
 _or_
 
 ```html
 <web-inquiry-form theme="dark" api-url="https://your-api-endpoint.com/api/leads"></web-inquiry-form>
 ```
-![Dark theme image](assets/dark.webp)
+![Dark theme image](assets/form_dark.png)
 
 _or_
 
@@ -170,6 +170,17 @@ Compatible with all modern browsers (Chrome, Firefox, Safari, Edge).
 
 The component dynamically loads:
 - [Cleave.js](https://github.com/nosir/cleave.js) for phone number formatting
+
+## Images
+
+![Dark theme image](assets/form1.png)
+
+![Dark theme image](assets/form2.png)
+
+![Dark theme image](assets/form3.png)
+
+![Dark theme image](assets/form4.png)
+
 
 ## License
 
