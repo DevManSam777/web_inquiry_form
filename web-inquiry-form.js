@@ -944,7 +944,8 @@ class WebInquiryForm extends HTMLElement {
         
         // If we're on the last step (review), allow submission
         if (this.currentStep === this.totalSteps - 1) {
-          form.dispatchEvent(new Event("submit"));
+          // Call handleFormSubmit directly - NO untrusted events
+          this.handleFormSubmit(e);
         } else {
           // Otherwise, try to go to next step
           this.nextStep();
@@ -952,11 +953,20 @@ class WebInquiryForm extends HTMLElement {
       }
     });
 
-    // Form submission
-    form.addEventListener("submit", this.handleFormSubmit.bind(this));
+    // Form submission - IMPORTANT: Remove the form submit event listener entirely for Firefox
+    const isFirefox = navigator.userAgent.toLowerCase().includes('firefox');
+    console.log('Browser detected:', isFirefox ? 'Firefox' : 'Other', navigator.userAgent);
+    
+    if (!isFirefox) {
+      // Only add form submit listener for non-Firefox browsers
+      form.addEventListener("submit", this.handleFormSubmit.bind(this));
+    }
+    
+    // Submit button - always call directly
     submitBtn.addEventListener("click", (e) => {
       e.preventDefault();
-      form.dispatchEvent(new Event("submit"));
+      console.log('Submit button clicked, calling handleFormSubmit directly');
+      this.handleFormSubmit(e);
     });
 
     // Validate current step on input
@@ -1424,8 +1434,15 @@ class WebInquiryForm extends HTMLElement {
     this.updateNavigation();
   }
 
+  // Enhanced Firefox-compatible form submission
   async handleFormSubmit(event) {
     event.preventDefault();
+    
+    // Debug logging
+    const isFirefox = navigator.userAgent.toLowerCase().includes('firefox');
+    console.log('=== FORM SUBMISSION DEBUG ===');
+    console.log('Browser:', isFirefox ? 'Firefox' : 'Other');
+    console.log('User Agent:', navigator.userAgent);
 
     const form = this.shadowRoot.getElementById("inquiry-form");
     const formData = new FormData(form);
@@ -1456,19 +1473,24 @@ class WebInquiryForm extends HTMLElement {
       })
     );
 
+    const apiUrl = this.getAttribute("api-url") || "http://localhost:5000/api/leads";
+    console.log('API URL:', apiUrl);
+    
     try {
-      const apiUrl =
-        this.getAttribute("api-url") || "http://localhost:5000/api/leads";
+      let success = false;
+      
+      if (isFirefox) {
+        // Force XMLHttpRequest for Firefox
+        console.log('🔥 FIREFOX: Using XMLHttpRequest');
+        success = await this.submitWithXHR(apiUrl, formObject);
+      } else {
+        // Use fetch for other browsers
+        console.log('🌐 OTHER BROWSER: Using fetch');
+        success = await this.submitWithFetch(apiUrl, formObject);
+      }
 
-      const response = await fetch(apiUrl, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formObject),
-      });
-
-      if (response.ok) {
+      if (success) {
+        console.log('✅ Form submission successful');
         this.showToast("Thank you! We'll be in touch soon.");
 
         // Reset form
@@ -1494,13 +1516,25 @@ class WebInquiryForm extends HTMLElement {
             detail: { message: "Form submitted successfully" },
           })
         );
-      } else {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Server error");
       }
+
     } catch (error) {
-      console.error("Error submitting form:", error);
-      this.showToast("Error: " + error.message, true);
+      console.error("❌ Form submission error:", error);
+      console.error("Error details:", {
+        name: error.name,
+        message: error.message,
+        stack: error.stack
+      });
+      
+      let userMessage = "There was an error submitting your form. Please try again.";
+      
+      if (error.message.includes('NetworkError') || error.message.includes('Failed to fetch')) {
+        userMessage = "Network error. Please check your connection and try again.";
+      } else if (error.message.includes('timeout')) {
+        userMessage = "Request timed out. Please try again.";
+      }
+      
+      this.showToast(userMessage, true);
 
       this.dispatchEvent(
         new CustomEvent("form-error", {
@@ -1510,6 +1544,75 @@ class WebInquiryForm extends HTMLElement {
         })
       );
     }
+  }
+
+  // XMLHttpRequest method for Firefox
+  async submitWithXHR(url, data) {
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      
+      // Set up the request
+      xhr.open('POST', url, true);
+      
+      // Set headers that Firefox expects
+      xhr.setRequestHeader('Content-Type', 'application/json');
+      xhr.setRequestHeader('Accept', 'application/json');
+      
+      // Handle response
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState === XMLHttpRequest.DONE) {
+          if (xhr.status >= 200 && xhr.status < 300) {
+            console.log('XHR Success:', xhr.status, xhr.responseText);
+            resolve(true);
+          } else {
+            console.error('XHR Error:', xhr.status, xhr.statusText, xhr.responseText);
+            reject(new Error(`Server responded with ${xhr.status}: ${xhr.statusText}`));
+          }
+        }
+      };
+      
+      // Handle network errors
+      xhr.onerror = function() {
+        console.error('XHR Network Error');
+        reject(new Error('Network error occurred'));
+      };
+      
+      // Handle timeout
+      xhr.ontimeout = function() {
+        console.error('XHR Timeout');
+        reject(new Error('Request timed out'));
+      };
+      
+      // Set timeout (30 seconds)
+      xhr.timeout = 30000;
+      
+      // Send the request
+      try {
+        xhr.send(JSON.stringify(data));
+      } catch (error) {
+        reject(new Error('Failed to send request: ' + error.message));
+      }
+    });
+  }
+
+  // Fetch method for other browsers
+  async submitWithFetch(url, data) {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+      },
+      body: JSON.stringify(data),
+      mode: 'cors',
+      credentials: 'omit',
+    });
+
+    if (!response.ok) {
+      throw new Error(`Server responded with ${response.status}: ${response.statusText}`);
+    }
+
+    return true;
   }
 }
 
