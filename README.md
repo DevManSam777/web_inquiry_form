@@ -1,4 +1,4 @@
-# Web Inquiry Form Component
+# Web Inquiry Form Web Component
 
 A reusable web component for collecting web development inquiries from potential clients. This component encapsulates the form UI, validation logic, and submission handling into a single custom HTML element.
 
