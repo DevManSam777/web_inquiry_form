@@ -191,4 +191,6 @@ https://github.com/DevManSam777/forms-server
 
 ## License
 
-MIT [MIT License](LICENSE)
+[LICENSE](LICENSE)  
+
+Copyright (c) 2025 DevManSam
