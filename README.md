@@ -182,6 +182,13 @@ The component dynamically loads:
 ![Dark theme image](assets/form4.png)
 
 
+
+## Need a server with email notifications for your form?
+
+Here is a link to one that I coded for you! 
+
+https://github.com/DevManSam777/forms-server
+
 ## License
 
 MIT
