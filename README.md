@@ -189,6 +189,10 @@ Here is a link to one that I coded for you!
 
 https://github.com/DevManSam777/forms-server
 
+## Want a more minimal form?
+
+https://github.com/DevManSam777/minimalist-contact-form
+
 ## License
 
 [LICENSE](LICENSE)  
