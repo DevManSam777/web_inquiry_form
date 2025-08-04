@@ -505,8 +505,7 @@ class WebInquiryForm extends HTMLElement {
       .extension-option {
         margin-top: 15px;
         padding: 15px;
-        background: ${fieldsetBackgroundColor};
-        filter: brightness(0.96);
+        background: ${inputBackgroundColor}; /* Changed to match input background */
         border-radius: ${borderRadius};
         border: 1px solid ${borderColor};
       }
@@ -648,7 +647,7 @@ class WebInquiryForm extends HTMLElement {
 
       .review-section {
         background: ${fieldsetBackgroundColor};
-        filter: brightness(0.96);
+        filter: brightness(0.98);
         border-radius: ${borderRadius};
         padding: 20px;
         border: 1px solid ${borderColor};
@@ -811,8 +810,7 @@ class WebInquiryForm extends HTMLElement {
       }
 
       .dark-mode .extension-option {
-        background-color: ${darkFieldsetBackgroundColor};
-        filter: brightness(1.1);
+        background-color: ${darkInputBackgroundColor}; /* Changed to match input background */
         border-color: ${darkBorderColor};
       }
 
@@ -1102,6 +1100,11 @@ class WebInquiryForm extends HTMLElement {
                     </div>
                   </div>
                 </div>
+              </div>
+
+              <div class="form-group">
+                <label for="textNumber">Text Number</label>
+                <input type="tel" id="textNumber" name="textNumber" />
               </div>
             </fieldset>
           </div>
@@ -1696,6 +1699,7 @@ class WebInquiryForm extends HTMLElement {
           { id: "email", label: "Email", required: true },
           { id: "phone", label: "Phone", required: true },
           { id: "phoneExt", label: "Phone Extension" },
+          { id: "textNumber", label: "Text Number" }, // Re-added text number
         ],
       },
       {
