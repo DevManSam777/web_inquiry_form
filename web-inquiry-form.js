@@ -1103,7 +1103,7 @@ class WebInquiryForm extends HTMLElement {
               </div>
 
               <div class="form-group">
-                <label for="textNumber">Text Number</label>
+                <label for="textNumber">Text Number (if different)</label>
                 <input type="tel" id="textNumber" name="textNumber" />
               </div>
             </fieldset>
