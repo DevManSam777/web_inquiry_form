@@ -505,7 +505,6 @@ class WebInquiryForm extends HTMLElement {
       .extension-option {
         margin-top: 15px;
         padding: 15px;
-        background: ${inputBackgroundColor}; /* Changed to match input background */
         border-radius: ${borderRadius};
         border: 1px solid ${borderColor};
       }
@@ -810,7 +809,6 @@ class WebInquiryForm extends HTMLElement {
       }
 
       .dark-mode .extension-option {
-        background-color: ${darkInputBackgroundColor}; /* Changed to match input background */
         border-color: ${darkBorderColor};
       }
 
@@ -1814,7 +1812,11 @@ class WebInquiryForm extends HTMLElement {
     // Debug logging
     const isFirefox = navigator.userAgent.toLowerCase().includes("firefox");
     console.log("=== FORM SUBMISSION DEBUG ===");
-    console.log("Browser:", isFirefox ? "Firefox" : "Other", navigator.userAgent);
+    console.log(
+      "Browser:",
+      isFirefox ? "Firefox" : "Other",
+      navigator.userAgent
+    );
 
     const form = this.shadowRoot.getElementById("inquiry-form");
     const formData = new FormData(form);
@@ -1880,12 +1882,13 @@ class WebInquiryForm extends HTMLElement {
           });
 
         // Remove validation classes from all inputs after successful submission
-        const allInputs = this.shadowRoot.querySelectorAll('input, textarea, select');
-        allInputs.forEach(input => {
-            input.classList.remove('valid', 'invalid');
-            this.removeError(input); // Also remove any error messages
+        const allInputs = this.shadowRoot.querySelectorAll(
+          "input, textarea, select"
+        );
+        allInputs.forEach((input) => {
+          input.classList.remove("valid", "invalid");
+          this.removeError(input); // Also remove any error messages
         });
-
 
         this.updateProgress();
         this.updateNavigation();
