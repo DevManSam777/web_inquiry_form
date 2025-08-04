@@ -505,8 +505,6 @@ class WebInquiryForm extends HTMLElement {
       .extension-option {
         margin-top: 15px;
         padding: 15px;
-        border-radius: ${borderRadius};
-        border: 1px solid ${borderColor};
       }
 
       .checkbox-wrapper {
@@ -806,10 +804,6 @@ class WebInquiryForm extends HTMLElement {
 
       .dark-mode .checkbox-wrapper label {
         color: ${darkTextColor};
-      }
-
-      .dark-mode .extension-option {
-        border-color: ${darkBorderColor};
       }
 
       .dark-mode .navigation {
