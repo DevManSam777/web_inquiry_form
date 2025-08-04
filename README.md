@@ -328,6 +328,6 @@ https://github.com/DevManSam777/minimalist-contact-form
 
 ## License
 
-LICENSE
+[LICENSE](LICENSE) 
 
 Copyright (c) 2025 DevManSam
