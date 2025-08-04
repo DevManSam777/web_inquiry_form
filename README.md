@@ -306,6 +306,15 @@ The component dynamically loads:
 ![light mode form 4](assets/form4.png)
 ![light mode form](assets/form5.png)
 
+## Custom Examples
+
+![custom form 1 light](assets/custom1-light.png)
+![custom form 1 dark](assets/custom1-dark.png)
+![custom form 2 light](assets/custom2-light.png)
+![custom form 2 light](assets/custom2-dark.png)
+![custom form 3 light](assets/custom3-light.png)
+![custom form 3 light](assets/custom3-dark.png)
+
 ## Related Resources
 
 ### Need a server with email notifications for your form?
