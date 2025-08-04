@@ -5,23 +5,158 @@ class WebInquiryForm extends HTMLElement {
     this.currentStep = 0;
     this.totalSteps = 5;
     this.completedSteps = new Set();
+    this.googleFontLoaded = false;
   }
 
   static get observedAttributes() {
-    return ["theme"];
+    return [
+      "theme",
+      "primary-color",
+      "background-color",
+      "text-color",
+      "border-color",
+      "border-radius",
+      "font-family",
+      "font-size",
+      "google-font",
+      "api-url",
+      "dark-primary-color",
+      "dark-background-color",
+      "dark-text-color",
+      "dark-border-color",
+      "form-title",
+      "input-background-color",
+      "input-text-color",
+      "input-border-color",
+      "fieldset-background-color",
+      "success-color",
+      "error-color",
+      "progress-color",
+      "dark-input-background-color",
+      "dark-input-text-color",
+      "dark-input-border-color",
+      "dark-fieldset-background-color",
+      "dark-success-color",
+      "dark-error-color",
+      "dark-progress-color",
+    ];
   }
 
   attributeChangedCallback(name, oldValue, newValue) {
+    if (oldValue === newValue) return;
+
     if (name === "theme") {
       this.updateTheme();
+    } else if (name === "google-font") {
+      // When google-font changes, reset the loaded flag and re-load/update
+      this.googleFontLoaded = false;
+      this.loadGoogleFont().then(() => {
+        this.updateStyles();
+      });
+    } else {
+      // Re-render styles for other attribute changes
+      this.updateStyles();
     }
   }
 
   connectedCallback() {
+    // Render the initial structure immediately
     this.render();
+
+    // Load Google Font and then update styles
+    this.loadGoogleFont().then(() => {
+      this.updateStyles();
+    });
+
     this.initializeEvents();
     this.updateTheme();
+    this.setupThemeWatchers();
     this.updateProgress();
+  }
+
+  disconnectedCallback() {
+    if (this.themeMediaQuery) {
+      this.themeMediaQuery.removeEventListener(
+        "change",
+        this.handleSystemThemeChange
+      );
+    }
+    if (this.themeObserver) {
+      this.themeObserver.disconnect();
+    }
+  }
+
+  loadGoogleFont() {
+    return new Promise((resolve) => {
+      const googleFont = this.getAttribute("google-font");
+
+      if (!googleFont) {
+        this.googleFontLoaded = false;
+        resolve();
+        return;
+      }
+
+      const existingLink = document.head.querySelector(
+        `link[href*="fonts.googleapis.com"][href*="${googleFont.replace(
+          /\s+/g,
+          "+"
+        )}"]`
+      );
+      if (existingLink) {
+        this.googleFontLoaded = true;
+        resolve();
+        return;
+      }
+
+      const link = document.createElement("link");
+      link.rel = "stylesheet";
+      link.href = `https://fonts.googleapis.com/css2?family=${googleFont.replace(
+        /\s+/g,
+        "+"
+      )}:wght@400;500;600&display=swap`;
+
+      link.onload = () => {
+        this.googleFontLoaded = true;
+        resolve();
+      };
+
+      link.onerror = () => {
+        console.warn(`Failed to load Google Font: ${googleFont}`);
+        this.googleFontLoaded = false;
+        resolve();
+      };
+
+      document.head.appendChild(link);
+    });
+  }
+
+  setupThemeWatchers() {
+    this.themeMediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+    this.handleSystemThemeChange = () => {
+      if (!this.getAttribute("theme")) {
+        this.updateTheme();
+      }
+    };
+    this.themeMediaQuery.addEventListener(
+      "change",
+      this.handleSystemThemeChange
+    );
+
+    this.themeObserver = new MutationObserver(() => {
+      if (!this.getAttribute("theme")) {
+        this.updateTheme();
+      }
+    });
+
+    this.themeObserver.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["data-theme", "class"],
+    });
+
+    this.themeObserver.observe(document.body, {
+      attributes: true,
+      attributeFilter: ["data-theme", "class"],
+    });
   }
 
   updateTheme() {
@@ -29,640 +164,876 @@ class WebInquiryForm extends HTMLElement {
     if (!container) return;
 
     const explicitTheme = this.getAttribute("theme");
-    const prefersDarkScheme = window.matchMedia(
-      "(prefers-color-scheme: dark)"
-    ).matches;
 
-    if (
-      explicitTheme === "dark" ||
-      (explicitTheme !== "light" && prefersDarkScheme)
-    ) {
+    let isDark = false;
+
+    if (explicitTheme) {
+      isDark = explicitTheme === "dark";
+    } else {
+      isDark = this.detectDarkMode();
+    }
+
+    if (isDark) {
       container.classList.add("dark-mode");
     } else {
       container.classList.remove("dark-mode");
     }
   }
 
-  render() {
-    this.shadowRoot.innerHTML = `
-      <style>
+  detectDarkMode() {
+    const html = document.documentElement;
+    const body = document.body;
+
+    const dataTheme =
+      html.getAttribute("data-theme") || body.getAttribute("data-theme");
+    if (dataTheme === "dark") return true;
+    if (dataTheme === "light") return false;
+
+    if (html.classList.contains("dark") || body.classList.contains("dark"))
+      return true;
+    if (
+      html.classList.contains("dark-mode") ||
+      body.classList.contains("dark-mode")
+    )
+      return true;
+    if (
+      html.classList.contains("theme-dark") ||
+      body.classList.contains("theme-dark")
+    )
+      return true;
+
+    return window.matchMedia("(prefers-color-scheme: dark)").matches;
+  }
+
+  getFontFamily() {
+    const googleFont = this.getAttribute("google-font");
+    const customFontFamily = this.getAttribute("font-family");
+
+    if (googleFont && this.googleFontLoaded) {
+      return `"${googleFont}", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`;
+    } else if (customFontFamily) {
+      return customFontFamily;
+    } else {
+      return '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+    }
+  }
+
+  get styles() {
+    const primaryColor = this.getAttribute("primary-color") || "#3498db";
+    const backgroundColor = this.getAttribute("background-color") || "#ffffff";
+    const textColor = this.getAttribute("text-color") || "#333333";
+    const borderColor = this.getAttribute("border-color") || "#aaaaaa";
+    const borderRadius = this.getAttribute("border-radius") || "6px";
+    const fontFamily = this.getFontFamily();
+    const fontSize = this.getAttribute("font-size") || "16px";
+
+    // Enhanced input styling
+    const inputBackgroundColor =
+      this.getAttribute("input-background-color") || backgroundColor;
+    const inputTextColor = this.getAttribute("input-text-color") || textColor;
+    const inputBorderColor =
+      this.getAttribute("input-border-color") || borderColor;
+
+    // Enhanced fieldset styling
+    const fieldsetBackgroundColor =
+      this.getAttribute("fieldset-background-color") || backgroundColor;
+
+    // Enhanced status colors
+    const successColor = this.getAttribute("success-color") || "#4caf50";
+    const errorColor = this.getAttribute("error-color") || "#d32f2f";
+    const progressColor = this.getAttribute("progress-color") || primaryColor;
+
+    // Dark mode variants
+    const darkPrimaryColor =
+      this.getAttribute("dark-primary-color") || "#60a5fa";
+    const darkBackgroundColor =
+      this.getAttribute("dark-background-color") || "#1e2026";
+    const darkTextColor = this.getAttribute("dark-text-color") || "#e9ecef";
+    const darkBorderColor = this.getAttribute("dark-border-color") || "#495057";
+
+    const darkInputBackgroundColor =
+      this.getAttribute("dark-input-background-color") || darkBackgroundColor;
+    const darkInputTextColor =
+      this.getAttribute("dark-input-text-color") || darkTextColor;
+    const darkInputBorderColor =
+      this.getAttribute("dark-input-border-color") || darkBorderColor;
+    const darkFieldsetBackgroundColor =
+      this.getAttribute("dark-fieldset-background-color") ||
+      darkBackgroundColor;
+    const darkSuccessColor =
+      this.getAttribute("dark-success-color") || "#4ade80";
+    const darkErrorColor = this.getAttribute("dark-error-color") || "#f87171";
+    const darkProgressColor =
+      this.getAttribute("dark-progress-color") || darkPrimaryColor;
+
+    return `
+      :host {
+        display: block;
+        font-family: ${fontFamily};
+        line-height: 1.6;
+        color: ${textColor};
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        font-size: ${fontSize};
+      }
+      
+      .form-container {
+        background-color: ${backgroundColor}; 
+        padding: 30px;
+        border-radius: ${borderRadius};
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        font-family: ${fontFamily};
+      }
+      
+      .form-header {
+        color: ${textColor};
+        margin-bottom: 30px;
+        text-align: center;
+      }
+
+      .form-header h1 {
+        font-size: calc(${fontSize} * 1.5);
+        line-height: 1;
+        margin-bottom: -8px;
+        font-family: ${fontFamily};
+      }
+
+      .form-header p {
+        font-size: calc(${fontSize} * 0.875);
+        opacity: 0.8;
+        font-family: ${fontFamily};
+      }
+
+      .progress-section {
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid ${borderColor};
+      }
+
+      .progress-bar {
+        width: 100%;
+        height: 6px;
+        background: rgba(${this.hexToRgb(progressColor)}, 0.1);
+        border-radius: calc(${borderRadius} / 2);
+        overflow: hidden;
+        margin-bottom: 15px;
+      }
+
+      .progress-fill {
+        height: 100%;
+        background: ${progressColor};
+        border-radius: calc(${borderRadius} / 2);
+        transition: width 0.3s ease;
+        width: 0%;
+      }
+
+      .step-indicators {
+        display: flex;
+        justify-content: space-between;
+        font-size: calc(${fontSize} * 0.875);
+        padding: 0 5px;
+        font-family: ${fontFamily};
+      }
+
+      .step-indicator {
+        display: flex;
+        align-items: center;
+        color: ${textColor};
+        opacity: 0.6;
+      }
+
+      .step-indicator.active {
+        color: ${progressColor};
+        font-weight: 600;
+        opacity: 1;
+      }
+
+      .step-indicator.completed {
+        color: ${successColor};
+        opacity: 1;
+      }
+
+      .step-dot {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: ${borderColor};
+        color: ${textColor};
+        margin-right: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: calc(${fontSize} * 0.6875);
+        font-weight: bold;
+        font-family: ${fontFamily};
+      }
+
+      .step-indicator.active .step-dot {
+        background: ${progressColor};
+        color: white;
+      }
+
+      .step-indicator.completed .step-dot {
+        background: ${successColor};
+        color: white;
+      }
+
+      .section {
+        display: none;
+      }
+
+      .section.active {
+        display: block;
+      }
+
+      .section-content {
+        border: none;
+        border-radius: 0;
+        padding: 0;
+        margin-bottom: 0;
+        background-color: transparent;
+        position: relative;
+      }
+
+      fieldset {
+        border: 1px solid ${borderColor};
+        border-radius: ${borderRadius};
+        padding: 20px;
+        margin-bottom: 25px;
+        background-color: ${fieldsetBackgroundColor};
+        filter: brightness(0.98);
+      }
+
+      legend {
+        font-size: calc(${fontSize} * 1.125);
+        font-weight: bold;
+        color: ${textColor};
+        padding: 0 10px;
+        font-family: ${fontFamily};
+      }
+
+      .section-subtitle {
+        color: ${textColor};
+        opacity: 0.7;
+        font-size: ${fontSize};
+        text-align: center;
+        margin-top: -10px;
+        font-family: ${fontFamily};
+      }
+
+      .form-group {
+        margin: 0 0 20px 0;
+      }
+
+      .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        font-size: ${fontSize};
+        color: ${textColor};
+        font-family: ${fontFamily};
+      }
+
+      .form-group input[type="text"],
+      .form-group input[type="email"],
+      .form-group input[type="tel"],
+      .form-group textarea,
+      .form-group select {
+        width: 100%;
+        padding: 10px;
+        border: 2px solid ${inputBorderColor};
+        border-radius: ${borderRadius};
+        box-sizing: border-box;
+        transition: border-color 0.3s, background-color 0.3s;
+        background-color: ${inputBackgroundColor};
+        color: ${inputTextColor};
+        font-size: ${fontSize};
+        font-family: ${fontFamily};
+      }
+
+      .form-group textarea {
+        resize: vertical;
+        min-height: 80px;
+      }
+
+      .form-group input[type="text"]:focus,
+      .form-group input[type="email"]:focus,
+      .form-group input[type="tel"]:focus,
+      .form-group textarea:focus,
+      .form-group select:focus {
+        outline: none;
+        border-color: ${primaryColor};
+        box-shadow: 0 0 3px rgba(52, 152, 219, 0.3);
+      }
+
+      .required::after {
+        content: "*";
+        color: #e74c3c;
+        margin-left: 4px;
+      }
+
+      .radio-group {
+        margin-top: 10px;
+      }
+
+      .radio-option {
+        display: flex;
+        align-items: center;
+        margin-bottom: 10px;
+        width: 100%;
+      }
+
+      .radio-option input[type="radio"] {
+        width: auto;
+        margin-right: 8px;
+        margin-bottom: 0;
+        flex-shrink: 0;
+      }
+
+      .radio-option label {
+        margin: 0;
+        font-weight: normal;
+        cursor: pointer;
+        width: auto;
+        flex: none;
+        color: ${textColor};
+        font-family: ${fontFamily};
+      }
+
+      .extension-option {
+        margin-top: 15px;
+        padding: 15px;
+        background: ${fieldsetBackgroundColor};
+        filter: brightness(0.96);
+        border-radius: ${borderRadius};
+        border: 1px solid ${borderColor};
+      }
+
+      .checkbox-wrapper {
+        display: flex;
+        align-items: center;
+        margin-bottom: 10px;
+      }
+
+      .checkbox-wrapper input[type="checkbox"] {
+        width: auto;
+        margin-right: 8px;
+      }
+
+      .checkbox-wrapper label {
+        margin: 0;
+        font-weight: normal;
+        color: ${textColor};
+        font-family: ${fontFamily};
+      }
+
+      .conditional-field {
+        display: none;
+        margin-top: 10px;
+      }
+
+      .conditional-field.show {
+        display: block;
+      }
+
+      .address-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+      }
+
+      .navigation {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 30px;
+        padding-top: 20px;
+        border-top: 1px solid ${borderColor};
+      }
+
+      .btn {
+        padding: 12px 20px;
+        border: none;
+        border-radius: ${borderRadius};
+        font-size: ${fontSize};
+        font-family: ${fontFamily};
+        cursor: pointer;
+        transition: background-color 0.3s, opacity 0.2s ease;
+        min-width: 120px;
+      }
+
+      .btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      .btn-secondary {
+        background-color: #6c757d;
+        color: white;
+      }
+
+      .btn-secondary:hover:not(:disabled) {
+        background-color: #5a6268;
+      }
+
+      .btn-primary {
+        background-color: ${primaryColor};
+        color: white;
+      }
+
+      .btn-primary:hover:not(:disabled) {
+        opacity: 0.9;
+      }
+
+      .error-message {
+        color: ${errorColor};
+        font-size: calc(${fontSize} * 0.75);
+        margin-top: 4px;
+        font-weight: 500;
+        font-family: ${fontFamily};
+      }
+
+      .invalid {
+        border: 2px solid ${errorColor} !important;
+        background-color: rgba(${this.hexToRgb(errorColor)}, 0.05);
+      }
+
+      .valid {
+        border-color: ${successColor} !important;
+        background-color: rgba(${this.hexToRgb(successColor)}, 0.05);
+      }
+
+      .toast {
+        position: fixed;
+        bottom: 350px;
+        right: 20px;
+        background: ${successColor};
+        color: white;
+        padding: 15px 20px;
+        border-radius: ${borderRadius};
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+        z-index: 1000;
+        transform: translateX(100%);
+        transition: transform 0.3s ease, opacity 0.3s ease;
+        opacity: 1;
+        font-family: ${fontFamily};
+        font-size: calc(${fontSize} * 0.875);
+        font-weight: 500;
+        min-width: 200px;
+        max-width: 400px;
+        word-wrap: break-word;
+        display: block;
+      }
+
+      .toast.show {
+        transform: translateX(0);
+      }
+
+      .toast.hide {
+        opacity: 0;
+        transform: translateX(100%);
+      }
+
+      .toast.error {
+        background: ${errorColor};
+      }
+
+      /* Review Section */
+      .review-container {
+        display: grid;
+        gap: 20px;
+      }
+
+      .review-section {
+        background: ${fieldsetBackgroundColor};
+        filter: brightness(0.96);
+        border-radius: ${borderRadius};
+        padding: 20px;
+        border: 1px solid ${borderColor};
+      }
+
+      .review-section h3 {
+        color: ${textColor};
+        font-size: ${fontSize};
+        font-weight: 600;
+        margin-bottom: 15px;
+        border-bottom: 1px solid ${borderColor};
+        padding-bottom: 8px;
+        font-family: ${fontFamily};
+      }
+
+      .review-item {
+        display: grid;
+        grid-template-columns: 160px 1fr;
+        gap: 12px;
+        margin-bottom: 8px;
+        align-items: start;
+      }
+
+      .review-label {
+        font-weight: 500;
+        color: ${textColor};
+        opacity: 0.8;
+        font-size: ${fontSize};
+        font-family: ${fontFamily};
+      }
+
+      .review-value {
+        color: ${textColor};
+        word-break: break-word;
+        font-size: ${fontSize};
+        font-family: ${fontFamily};
+      }
+
+      .review-value.empty {
+        color: ${textColor};
+        opacity: 0.5;
+        font-style: italic;
+      }
+
+      .edit-step-btn {
+        background: none;
+        border: 1px solid ${primaryColor};
+        color: ${primaryColor};
+        padding: 6px 12px;
+        border-radius: ${borderRadius};
+        font-size: calc(${fontSize} * 0.875);
+        font-family: ${fontFamily};
+        cursor: pointer;
+        transition: all 0.2s ease;
+        margin-top: 10px;
+      }
+
+      .edit-step-btn:hover {
+        background: ${primaryColor};
+        color: white;
+      }
+
+      /* Dark Mode */
+      .form-container.dark-mode {
+        background-color: ${darkBackgroundColor};
+        color: ${darkTextColor};
+      }
+
+      .dark-mode fieldset {
+        background-color: ${darkFieldsetBackgroundColor};
+        filter: brightness(1.1);
+        border-color: ${darkBorderColor};
+      }
+
+      .dark-mode legend {
+        color: ${darkTextColor};
+      }
+
+      .dark-mode .progress-section {
+        border-bottom-color: ${darkBorderColor};
+      }
+
+      .dark-mode .form-header {
+        color: ${darkTextColor};
+      }
+
+      .dark-mode .form-header h1 {
+        color: ${darkTextColor};
+      }
+
+      .dark-mode .section-subtitle {
+        color: ${darkTextColor};
+      }
+
+      .dark-mode .form-group label {
+        color: ${darkTextColor};
+      }
+
+      .dark-mode .step-indicator {
+        color: ${darkTextColor};
+      }
+
+      .dark-mode .step-indicator.active {
+        color: ${darkProgressColor};
+      }
+
+      .dark-mode .step-indicator.completed {
+        color: ${darkSuccessColor};
+      }
+
+      .dark-mode .step-dot {
+        background: ${darkBorderColor};
+        color: ${darkTextColor};
+      }
+
+      .dark-mode .step-indicator.active .step-dot {
+        background: ${darkProgressColor};
+        color: white;
+      }
+
+      .dark-mode .step-indicator.completed .step-dot {
+        background: ${darkSuccessColor};
+        color: white;
+      }
+
+      .dark-mode .progress-fill {
+        background: ${darkProgressColor};
+      }
+
+      .dark-mode .progress-bar {
+        background: rgba(${this.hexToRgb(darkProgressColor)}, 0.1);
+      }
+
+      .dark-mode .form-group input[type="text"],
+      .dark-mode .form-group input[type="email"],
+      .dark-mode .form-group input[type="tel"],
+      .dark-mode .form-group textarea,
+      .dark-mode .form-group select {
+        background-color: ${darkInputBackgroundColor};
+        filter: brightness(1.1);
+        color: ${darkInputTextColor};
+        border-color: ${darkInputBorderColor};
+      }
+
+      .dark-mode .form-group input[type="text"]:focus,
+      .dark-mode .form-group input[type="email"]:focus,
+      .dark-mode .form-group input[type="tel"]:focus,
+      .dark-mode .form-group textarea:focus,
+      .dark-mode .form-group select:focus {
+        border-color: ${darkPrimaryColor};
+        box-shadow: 0 0 3px rgba(96, 165, 250, 0.3);
+      }
+
+      .dark-mode .radio-option label {
+        color: ${darkTextColor};
+      }
+
+      .dark-mode .checkbox-wrapper label {
+        color: ${darkTextColor};
+      }
+
+      .dark-mode .extension-option {
+        background-color: ${darkFieldsetBackgroundColor};
+        filter: brightness(1.1);
+        border-color: ${darkBorderColor};
+      }
+
+      .dark-mode .navigation {
+        border-top-color: ${darkBorderColor};
+      }
+
+      .dark-mode .btn-primary {
+        background-color: ${darkPrimaryColor};
+      }
+
+      .dark-mode .review-section {
+        background-color: ${darkFieldsetBackgroundColor};
+        filter: brightness(1.1);
+        border-color: ${darkBorderColor};
+      }
+
+      .dark-mode .review-section h3 {
+        color: ${darkTextColor};
+        border-bottom-color: ${darkBorderColor};
+      }
+
+      .dark-mode .review-label {
+        color: ${darkTextColor};
+      }
+
+      .dark-mode .review-value {
+        color: ${darkTextColor};
+      }
+
+      .dark-mode .review-value.empty {
+        color: ${darkTextColor};
+        opacity: 0.5;
+      }
+
+      .dark-mode .edit-step-btn {
+        border-color: ${darkPrimaryColor};
+        color: ${darkPrimaryColor};
+      }
+
+      .dark-mode .edit-step-btn:hover {
+        background: ${darkPrimaryColor};
+        color: white;
+      }
+
+      .dark-mode .toast {
+        background: ${darkSuccessColor};
+      }
+
+      .dark-mode .toast.error {
+        background: ${darkErrorColor};
+      }
+
+      .dark-mode .error-message {
+        color: ${darkErrorColor};
+      }
+
+      .dark-mode .invalid {
+        border-color: ${darkErrorColor} !important;
+        background-color: rgba(${this.hexToRgb(darkErrorColor)}, 0.05);
+      }
+
+      .dark-mode .valid {
+        border-color: ${darkSuccessColor} !important;
+        background-color: rgba(${this.hexToRgb(darkSuccessColor)}, 0.05);
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
         :host {
-          display: block;
-          font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-          line-height: 1.6;
-          color: #333;
-          max-width: 800px;
-          margin: 0 auto;
-          padding: 20px;
+          padding: 10px;
         }
-        
+
         .form-container {
-          background-color: #fff; 
-          padding: 30px;
-          border-radius: 8px;
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        }
-        
-        .form-header {
-          color: #2c3e50;
-          margin-bottom: 30px;
-          text-align: center;
+          padding: 20px;
         }
 
         .form-header h1 {
-          font-size: 24px;
-          line-height: 1;
-          margin-bottom: -8px;
-        }
-
-        .form-header p {
-          font-size: 14px;
-          opacity: 0.8;
-        }
-
-        .progress-section {
-          margin-bottom: 30px;
-          padding-bottom: 20px;
-          border-bottom: 1px solid #e9ecef;
-        }
-
-        .progress-bar {
-          width: 100%;
-          height: 6px;
-          background: rgba(52, 152, 219, 0.1);
-          border-radius: 3px;
-          overflow: hidden;
-          margin-bottom: 15px;
-        }
-
-        .progress-fill {
-          height: 100%;
-          background: #3498db;
-          border-radius: 3px;
-          transition: width 0.3s ease;
-          width: 0%;
-        }
-
-        .step-indicators {
-          display: flex;
-          justify-content: space-between;
-          font-size: 14px;
-          padding: 0 5px;
-        }
-
-        .step-indicator {
-          display: flex;
-          align-items: center;
-          color: #6c757d;
-        }
-
-        .step-indicator.active {
-          color: #3498db;
-          font-weight: 600;
-        }
-
-        .step-indicator.completed {
-          color: #4caf50;
-        }
-
-        .step-dot {
-          width: 20px;
-          height: 20px;
-          border-radius: 50%;
-          background: #e9ecef;
-          color: #6c757d;
-          margin-right: 8px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 11px;
-          font-weight: bold;
-        }
-
-        .step-indicator.active .step-dot {
-          background: #3498db;
-          color: white;
-        }
-
-        .step-indicator.completed .step-dot {
-          background: #4caf50;
-          color: white;
-        }
-
-        .section {
-          display: none;
-        }
-
-        .section.active {
-          display: block;
-        }
-
-        .section-content {
-          border: none;
-          border-radius: 0;
-          padding: 0;
-          margin-bottom: 0;
-          background-color: transparent;
-          position: relative;
+          font-size: calc(${fontSize} * 1.25);
         }
 
         fieldset {
-          border: 1px solid #aaa;
-          border-radius: 6px;
-          padding: 20px;
-          margin-bottom: 25px;
-          background-color: #fafbfc;
+          padding: 15px;
         }
 
         legend {
-          font-size: 18px;
-          font-weight: bold;
-          color: #2c3e50;
-          padding: 0 10px;
-        }
-
-        .section-subtitle {
-          color: #666;
-          font-size: 16px;
-          text-align: center;
-          margin-top: -10px;
-        }
-
-        .form-group {
-          margin: 0 0 20px 0;
+          font-size: ${fontSize};
         }
 
         .form-group label {
-          display: block;
-          margin-bottom: 8px;
-          font-weight: 600;
-          font-size: 16px;
-          color: #333;
-        }
-
-        .form-group input[type="text"],
-        .form-group input[type="email"],
-        .form-group input[type="tel"],
-        .form-group textarea,
-        .form-group select {
-          width: 100%;
-          padding: 10px;
-          border: 1px solid #aaa;
-          border-radius: 4px;
-          box-sizing: border-box;
-          transition: border-color 0.3s, background-color 0.3s;
-          background-color: #fff;
-          color: #333;
-          font-size: 16px;
-        }
-
-        .form-group textarea {
-          resize: vertical;
-          min-height: 80px;
-        }
-
-        .form-group input[type="text"]:focus,
-        .form-group input[type="email"]:focus,
-        .form-group input[type="tel"]:focus,
-        .form-group textarea:focus,
-        .form-group select:focus {
-          outline: none;
-          border-color: #3498db;
-          box-shadow: 0 0 3px rgba(52, 152, 219, 0.3);
-        }
-
-        .required::after {
-          content: "*";
-          color: #e74c3c;
-          margin-left: 4px;
-        }
-
-        .radio-group {
-          margin-top: 10px;
-        }
-
-        .radio-option {
-          display: flex;
-          align-items: center;
-          margin-bottom: 10px;
-          width: 100%;
-        }
-
-        .radio-option input[type="radio"] {
-          width: auto;
-          margin-right: 8px;
-          margin-bottom: 0;
-          flex-shrink: 0;
-        }
-
-        .radio-option label {
-          margin: 0;
-          font-weight: normal;
-          cursor: pointer;
-          width: auto;
-          flex: none;
-        }
-
-        .extension-option {
-          margin-top: 15px;
-          padding: 15px;
-          background: #fafbfc;
-          border-radius: 6px;
-          border: 1px solid #e9ecef;
-        }
-
-        .checkbox-wrapper {
-          display: flex;
-          align-items: center;
-          margin-bottom: 10px;
-        }
-
-        .checkbox-wrapper input[type="checkbox"] {
-          width: auto;
-          margin-right: 8px;
-        }
-
-        .checkbox-wrapper label {
-          margin: 0;
-          font-weight: normal;
-        }
-
-        .conditional-field {
-          display: none;
-          margin-top: 10px;
-        }
-
-        .conditional-field.show {
-          display: block;
+          font-size: calc(${fontSize} * 0.875);
         }
 
         .address-row {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 15px;
+          grid-template-columns: 1fr;
         }
 
-        .navigation {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-top: 30px;
-          padding-top: 20px;
-          border-top: 1px solid rgb(186, 186, 186);
+        .step-indicators {
+          font-size: calc(${fontSize} * 0.75);
         }
 
-        .btn {
-          padding: 12px 20px;
-          border: none;
-          border-radius: 4px;
-          font-size: 16px;
-          cursor: pointer;
-          transition: background-color 0.3s;
-          min-width: 120px;
-        }
-
-        .btn:disabled {
-          opacity: 0.5;
-          cursor: not-allowed;
-        }
-
-        .btn-secondary {
-          background-color: #6c757d;
-          color: white;
-        }
-
-        .btn-secondary:hover:not(:disabled) {
-          background-color: #5a6268;
-        }
-
-        .btn-primary {
-          background-color: #3498db;
-          color: white;
-        }
-
-        .btn-primary:hover:not(:disabled) {
-          background-color: #2980b9;
-        }
-
-        .error-message {
-          color: #d32f2f;
-          font-size: 14px;
-          margin-top: 4px;
-          font-weight: 500;
-        }
-
-        .invalid {
-          border: 1px solid #d32f2f !important;
-          background-color: rgba(211, 47, 47, 0.05);
-        }
-
-        .valid {
-          border-color: #4caf50;
-          background-color: rgba(76, 175, 80, 0.05);
-        }
-
-        .toast {
-          position: fixed;
-          bottom: 350px;
-          right: 20px;
-          background: #4caf50;
-          color: white;
-          padding: 15px 20px;
-          border-radius: 6px;
-          box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
-          z-index: 1000;
-          transform: translateX(100%);
-          transition: transform 0.3s ease, opacity 0.3s ease;
-          opacity: 1;
-          font-family: inherit;
-          font-size: 14px;
-          font-weight: 500;
-          min-width: 200px;
-          max-width: 400px;
-          word-wrap: break-word;
-          display: block;
-        }
-
-        .toast.show {
-          transform: translateX(0);
-        }
-
-        .toast.hide {
-          opacity: 0;
-          transform: translateX(100%);
-        }
-
-        .toast.error {
-          background: #f44336;
-        }
-
-        /* Review Section */
-        .review-container {
-          display: grid;
-          gap: 20px;
-        }
-
-        .review-section {
-          background: #fafbfc;
-          border-radius: 6px;
-          padding: 20px;
-          border: 1px solid #e9ecef;
-        }
-
-        .review-section h3 {
-          color: #2c3e50;
-          font-size: 16px;
-          font-weight: 600;
-          margin-bottom: 15px;
-          border-bottom: 1px solid #e9ecef;
-          padding-bottom: 8px;
+        .step-indicator span {
+          display: none;
         }
 
         .review-item {
-          display: grid;
-          grid-template-columns: 160px 1fr;
-          gap: 12px;
-          margin-bottom: 8px;
-          align-items: start;
+          grid-template-columns: 1fr;
+          gap: 4px;
         }
 
         .review-label {
-          font-weight: 500;
-          color: #495057;
-          font-size: 16px;
+          font-weight: 600;
+        }
+
+        .review-section h3 {
+          font-size: ${fontSize};
+        }
+
+        .review-label {
+          font-size: calc(${fontSize} * 0.875);
         }
 
         .review-value {
-          color: #2c3e50;
-          word-break: break-word;
-          font-size: 16px;
+          font-size: calc(${fontSize} * 0.875);
+        }
+      }
+
+      @media (max-width: 480px) {
+        :host {
+          padding: 5px;
         }
 
-        .review-value.empty {
-          color: #6c757d;
-          font-style: italic;
+        .form-container {
+          padding: 15px;
+        }
+
+        .form-header h1 {
+          font-size: calc(${fontSize} * 1.125);
+        }
+
+        .form-header p {
+          font-size: calc(${fontSize} * 0.75);
+        }
+
+        fieldset {
+          padding: 10px;
+        }
+
+        legend {
+          font-size: calc(${fontSize} * 0.875);
+        }
+
+        .section-subtitle {
+          font-size: calc(${fontSize} * 0.75);
+        }
+
+        .form-group label {
+          font-size: calc(${fontSize} * 0.75);
+        }
+
+        .step-indicators {
+          font-size: calc(${fontSize} * 0.625);
+        }
+
+        .btn {
+          font-size: calc(${fontSize} * 0.875);
+          padding: 10px 16px;
+          min-width: 100px;
+        }
+
+        .review-section h3 {
+          font-size: calc(${fontSize} * 0.875);
+        }
+
+        .review-label {
+          font-size: calc(${fontSize} * 0.75);
+        }
+
+        .review-value {
+          font-size: calc(${fontSize} * 0.75);
         }
 
         .edit-step-btn {
-          background: none;
-          border: 1px solid #3498db;
-          color: #3498db;
-          padding: 6px 12px;
-          border-radius: 4px;
-          font-size: 14px;
-          cursor: pointer;
-          transition: all 0.2s ease;
-          margin-top: 10px;
+          font-size: calc(${fontSize} * 0.75);
+          padding: 4px 8px;
         }
+      }
+    `;
+  }
 
-        .edit-step-btn:hover {
-          background: #3498db;
-          color: white;
-        }
+  hexToRgb(hex) {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result
+      ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(
+          result[3],
+          16
+        )}`
+      : "0, 0, 0";
+  }
 
-        /* Dark Mode */
-        .form-container.dark-mode {
-          background-color: #1e2026;
-          color: #e9ecef;
-        }
+  updateStyles() {
+    const styleTag = this.shadowRoot.querySelector("style");
+    if (styleTag) {
+      styleTag.textContent = this.styles;
+    }
+  }
 
-        .dark-mode fieldset {
-          background-color: #252830;
-          border-color: #495057;
-        }
+  render() {
+    if (!this.shadowRoot.querySelector("style")) {
+      const styleTag = document.createElement("style");
+      this.shadowRoot.appendChild(styleTag);
+    }
 
-        .dark-mode legend {
-          color: #f8f9fa;
-        }
-
-        .dark-mode .progress-section {
-          background-color: #252830;
-          border-bottom-color: #495057;
-        }
-
-        .dark-mode .form-header {
-          color: #f8f9fa;
-        }
-
-        .dark-mode .form-group label {
-          color: #e9ecef;
-        }
-
-        .dark-mode .form-group input[type="text"],
-        .dark-mode .form-group input[type="email"],
-        .dark-mode .form-group input[type="tel"],
-        .dark-mode .form-group textarea,
-        .dark-mode .form-group select {
-          background-color: #343a40;
-          color: #e9ecef;
-          border-color: #495057;
-        }
-
-        .dark-mode .form-group input[type="text"]:focus,
-        .dark-mode .form-group input[type="email"]:focus,
-        .dark-mode .form-group input[type="tel"]:focus,
-        .dark-mode .form-group textarea:focus,
-        .dark-mode .form-group select:focus {
-          border-color: #3498db;
-          box-shadow: 0 0 3px rgba(52, 152, 219, 0.3);
-        }
-
-        .dark-mode .extension-option {
-          background-color: #252830;
-          border-color: #495057;
-        }
-
-        .dark-mode .review-section {
-          background-color: #252830;
-          border-color: #495057;
-        }
-
-        .dark-mode .review-section h3 {
-          color: #f8f9fa;
-          border-bottom-color: #495057;
-        }
-
-        .dark-mode .review-label {
-          color: #adb5bd;
-        }
-
-        .dark-mode .review-value {
-          color: #e9ecef;
-        }
-
-        .dark-mode .review-value.empty {
-          color: #6c757d;
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-          :host {
-            padding: 10px;
-          }
-
-          .form-container {
-            padding: 20px;
-          }
-
-          .form-header h1 {
-            font-size: 20px;
-          }
-
-          fieldset {
-            padding: 15px;
-          }
-
-          legend {
-            font-size: 16px;
-          }
-
-          .form-group label {
-            font-size: 14px;
-          }
-
-          .address-row {
-            grid-template-columns: 1fr;
-          }
-
-          .step-indicators {
-            font-size: 12px;
-          }
-
-          .step-indicator span {
-            display: none;
-          }
-
-          .review-item {
-            grid-template-columns: 1fr;
-            gap: 4px;
-          }
-
-          .review-label {
-            font-weight: 600;
-          }
-
-          .review-label {
-            font-weight: 600;
-          }
-
-          .review-section h3 {
-            font-size: 16px;
-          }
-
-          .review-label {
-            font-size: 14px;
-          }
-
-          .review-value {
-            font-size: 14px;
-          }
-        }
-
-        @media (max-width: 480px) {
-          :host {
-            padding: 5px;
-          }
-
-          .form-container {
-            padding: 15px;
-          }
-
-          .form-header h1 {
-            font-size: 18px;
-          }
-
-          .form-header p {
-            font-size: 12px;
-          }
-
-          fieldset {
-            padding: 10px;
-          }
-
-          legend {
-            font-size: 14px;
-          }
-
-          .section-subtitle {
-            font-size: 12px;
-          }
-
-          .form-group label {
-            font-size: 12px;
-          }
-
-          .step-indicators {
-            font-size: 10px;
-          }
-
-          .btn {
-            font-size: 14px;
-            padding: 10px 16px;
-            min-width: 100px;
-          }
-
-          .review-section h3 {
-            font-size: 14px;
-          }
-
-          .review-label {
-            font-size: 12px;
-          }
-
-          .review-value {
-            font-size: 12px;
-          }
-
-          .edit-step-btn {
-            font-size: 12px;
-            padding: 4px 8px;
-          }
-        }
-      </style>
+    this.shadowRoot.innerHTML = `
+      ${this.shadowRoot.querySelector("style").outerHTML}
 
       <div class="form-container">
         <div class="form-header">
-          <h1>Web Development Inquiry</h1>
+          <h1>${
+            this.getAttribute("form-title") || "Web Development Inquiry"
+          }</h1>
         </div>
 
         <div class="progress-section">
@@ -728,42 +1099,6 @@ class WebInquiryForm extends HTMLElement {
                     <div class="form-group">
                       <label for="phoneExt">Extension</label>
                       <input type="text" id="phoneExt" name="phoneExt" />
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="form-group">
-                <label for="textNumber">Text Number (if different)</label>
-                <input type="tel" id="textNumber" name="textNumber" />
-              </div>
-            </fieldset>
-          </div>
-
-          <!-- Step 2: Business Information -->
-          <div class="section" data-step="1">
-            <fieldset>
-              <legend>Business Information</legend>
-              <p class="section-subtitle">Tell us about your business!</p>
-
-              <div class="form-group">
-                <label for="businessName">Business Name</label>
-                <input type="text" id="businessName" name="businessName" />
-              </div>
-
-              <div class="form-group">
-                <label for="businessPhone">Business Phone Number</label>
-                <input type="tel" id="businessPhone" name="businessPhone" />
-                
-                <div class="extension-option">
-                  <div class="checkbox-wrapper">
-                    <input type="checkbox" id="businessPhoneExtCheck" name="businessPhoneExtCheck" />
-                    <label for="businessPhoneExtCheck">Add Extension</label>
-                  </div>
-                  <div class="conditional-field" id="businessPhoneExtField">
-                    <div class="form-group">
-                      <label for="businessPhoneExt">Extension</label>
-                      <input type="text" id="businessPhoneExt" name="businessPhoneExt" />
                     </div>
                   </div>
                 </div>
@@ -914,6 +1249,7 @@ class WebInquiryForm extends HTMLElement {
         </form>
       </div>
     `;
+    this.updateStyles();
   }
 
   initializeEvents() {
@@ -941,7 +1277,7 @@ class WebInquiryForm extends HTMLElement {
     form.addEventListener("keydown", (e) => {
       if (e.key === "Enter") {
         e.preventDefault();
-        
+
         // If we're on the last step (review), allow submission
         if (this.currentStep === this.totalSteps - 1) {
           // Call handleFormSubmit directly - NO untrusted events
@@ -954,18 +1290,22 @@ class WebInquiryForm extends HTMLElement {
     });
 
     // Form submission - IMPORTANT: Remove the form submit event listener entirely for Firefox
-    const isFirefox = navigator.userAgent.toLowerCase().includes('firefox');
-    console.log('Browser detected:', isFirefox ? 'Firefox' : 'Other', navigator.userAgent);
-    
+    const isFirefox = navigator.userAgent.toLowerCase().includes("firefox");
+    console.log(
+      "Browser detected:",
+      isFirefox ? "Firefox" : "Other",
+      navigator.userAgent
+    );
+
     if (!isFirefox) {
       // Only add form submit listener for non-Firefox browsers
       form.addEventListener("submit", this.handleFormSubmit.bind(this));
     }
-    
+
     // Submit button - always call directly
     submitBtn.addEventListener("click", (e) => {
       e.preventDefault();
-      console.log('Submit button clicked, calling handleFormSubmit directly');
+      console.log("Submit button clicked, calling handleFormSubmit directly");
       this.handleFormSubmit(e);
     });
 
@@ -1276,18 +1616,18 @@ class WebInquiryForm extends HTMLElement {
 
   showToast(message, isError = false) {
     // Remove any existing toast
-    const existingToast = this.shadowRoot.querySelector('.toast');
+    const existingToast = this.shadowRoot.querySelector(".toast");
     if (existingToast) {
       existingToast.remove();
     }
 
     // Create toast element
-    const toast = document.createElement('div');
-    toast.className = 'toast';
+    const toast = document.createElement("div");
+    toast.className = "toast";
     toast.textContent = message;
-    
+
     if (isError) {
-      toast.classList.add('error');
+      toast.classList.add("error");
     }
 
     // Add to shadow DOM
@@ -1295,14 +1635,14 @@ class WebInquiryForm extends HTMLElement {
 
     // Trigger animation after a brief delay to ensure element is in DOM
     setTimeout(() => {
-      toast.classList.add('show');
+      toast.classList.add("show");
     }, 50);
-    
+
     // Auto-hide after 5 seconds
     setTimeout(() => {
-      toast.classList.remove('show');
-      toast.classList.add('hide');
-      
+      toast.classList.remove("show");
+      toast.classList.add("hide");
+
       // Remove element after animation completes
       setTimeout(() => {
         if (toast.parentNode) {
@@ -1437,12 +1777,12 @@ class WebInquiryForm extends HTMLElement {
   // Enhanced Firefox-compatible form submission
   async handleFormSubmit(event) {
     event.preventDefault();
-    
+
     // Debug logging
-    const isFirefox = navigator.userAgent.toLowerCase().includes('firefox');
-    console.log('=== FORM SUBMISSION DEBUG ===');
-    console.log('Browser:', isFirefox ? 'Firefox' : 'Other');
-    console.log('User Agent:', navigator.userAgent);
+    const isFirefox = navigator.userAgent.toLowerCase().includes("firefox");
+    console.log("=== FORM SUBMISSION DEBUG ===");
+    console.log("Browser:", isFirefox ? "Firefox" : "Other");
+    console.log("User Agent:", navigator.userAgent);
 
     const form = this.shadowRoot.getElementById("inquiry-form");
     const formData = new FormData(form);
@@ -1473,24 +1813,25 @@ class WebInquiryForm extends HTMLElement {
       })
     );
 
-    const apiUrl = this.getAttribute("api-url") || "http://localhost:5000/api/leads";
-    console.log('API URL:', apiUrl);
-    
+    const apiUrl =
+      this.getAttribute("api-url") || "http://localhost:5000/api/leads";
+    console.log("API URL:", apiUrl);
+
     try {
       let success = false;
-      
+
       if (isFirefox) {
         // Force XMLHttpRequest for Firefox
-        console.log('🔥 FIREFOX: Using XMLHttpRequest');
+        console.log("🔥 FIREFOX: Using XMLHttpRequest");
         success = await this.submitWithXHR(apiUrl, formObject);
       } else {
         // Use fetch for other browsers
-        console.log('🌐 OTHER BROWSER: Using fetch');
+        console.log("🌐 OTHER BROWSER: Using fetch");
         success = await this.submitWithFetch(apiUrl, formObject);
       }
 
       if (success) {
-        console.log('✅ Form submission successful');
+        console.log("✅ Form submission successful");
         this.showToast("Thank you! We'll be in touch soon.");
 
         // Reset form
@@ -1517,23 +1858,27 @@ class WebInquiryForm extends HTMLElement {
           })
         );
       }
-
     } catch (error) {
       console.error("❌ Form submission error:", error);
       console.error("Error details:", {
         name: error.name,
         message: error.message,
-        stack: error.stack
+        stack: error.stack,
       });
-      
-      let userMessage = "There was an error submitting your form. Please try again.";
-      
-      if (error.message.includes('NetworkError') || error.message.includes('Failed to fetch')) {
-        userMessage = "Network error. Please check your connection and try again.";
-      } else if (error.message.includes('timeout')) {
+
+      let userMessage =
+        "There was an error submitting your form. Please try again.";
+
+      if (
+        error.message.includes("NetworkError") ||
+        error.message.includes("Failed to fetch")
+      ) {
+        userMessage =
+          "Network error. Please check your connection and try again.";
+      } else if (error.message.includes("timeout")) {
         userMessage = "Request timed out. Please try again.";
       }
-      
+
       this.showToast(userMessage, true);
 
       this.dispatchEvent(
@@ -1550,47 +1895,56 @@ class WebInquiryForm extends HTMLElement {
   async submitWithXHR(url, data) {
     return new Promise((resolve, reject) => {
       const xhr = new XMLHttpRequest();
-      
+
       // Set up the request
-      xhr.open('POST', url, true);
-      
+      xhr.open("POST", url, true);
+
       // Set headers that Firefox expects
-      xhr.setRequestHeader('Content-Type', 'application/json');
-      xhr.setRequestHeader('Accept', 'application/json');
-      
+      xhr.setRequestHeader("Content-Type", "application/json");
+      xhr.setRequestHeader("Accept", "application/json");
+
       // Handle response
-      xhr.onreadystatechange = function() {
+      xhr.onreadystatechange = function () {
         if (xhr.readyState === XMLHttpRequest.DONE) {
           if (xhr.status >= 200 && xhr.status < 300) {
-            console.log('XHR Success:', xhr.status, xhr.responseText);
+            console.log("XHR Success:", xhr.status, xhr.responseText);
             resolve(true);
           } else {
-            console.error('XHR Error:', xhr.status, xhr.statusText, xhr.responseText);
-            reject(new Error(`Server responded with ${xhr.status}: ${xhr.statusText}`));
+            console.error(
+              "XHR Error:",
+              xhr.status,
+              xhr.statusText,
+              xhr.responseText
+            );
+            reject(
+              new Error(
+                `Server responded with ${xhr.status}: ${xhr.statusText}`
+              )
+            );
           }
         }
       };
-      
+
       // Handle network errors
-      xhr.onerror = function() {
-        console.error('XHR Network Error');
-        reject(new Error('Network error occurred'));
+      xhr.onerror = function () {
+        console.error("XHR Network Error");
+        reject(new Error("Network error occurred"));
       };
-      
+
       // Handle timeout
-      xhr.ontimeout = function() {
-        console.error('XHR Timeout');
-        reject(new Error('Request timed out'));
+      xhr.ontimeout = function () {
+        console.error("XHR Timeout");
+        reject(new Error("Request timed out"));
       };
-      
+
       // Set timeout (30 seconds)
       xhr.timeout = 30000;
-      
+
       // Send the request
       try {
         xhr.send(JSON.stringify(data));
       } catch (error) {
-        reject(new Error('Failed to send request: ' + error.message));
+        reject(new Error("Failed to send request: " + error.message));
       }
     });
   }
@@ -1601,15 +1955,17 @@ class WebInquiryForm extends HTMLElement {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Accept": "application/json",
+        Accept: "application/json",
       },
       body: JSON.stringify(data),
-      mode: 'cors',
-      credentials: 'omit',
+      mode: "cors",
+      credentials: "omit",
     });
 
     if (!response.ok) {
-      throw new Error(`Server responded with ${response.status}: ${response.statusText}`);
+      throw new Error(
+        `Server responded with ${response.status}: ${response.statusText}`
+      );
     }
 
     return true;
