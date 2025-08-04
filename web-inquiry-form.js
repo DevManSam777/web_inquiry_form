@@ -3,7 +3,7 @@ class WebInquiryForm extends HTMLElement {
     super();
     this.attachShadow({ mode: "open" });
     this.currentStep = 0;
-    this.totalSteps = 5;
+    this.totalSteps = 5; // Steps 0, 1, 2, 3, 4
     this.completedSteps = new Set();
     this.googleFontLoaded = false;
   }
@@ -877,7 +877,7 @@ class WebInquiryForm extends HTMLElement {
 
       .dark-mode .valid {
         border-color: ${darkSuccessColor} !important;
-        background-color: rgba(${this.hexToRgb(darkSuccessColor)}, 0.05);
+        background-color: rgba(${this.hexToRgb(successColor)}, 0.05);
       }
 
       /* Responsive */
@@ -1103,6 +1103,36 @@ class WebInquiryForm extends HTMLElement {
                   </div>
                 </div>
               </div>
+            </fieldset>
+          </div>
+
+          <!-- Step 2: Business Information (ADDED) -->
+          <div class="section" data-step="1">
+            <fieldset>
+              <legend>Business Information</legend>
+              <p class="section-subtitle">Tell us about your business.</p>
+
+              <div class="form-group">
+                <label for="businessName">Business Name</label>
+                <input type="text" id="businessName" name="businessName" />
+              </div>
+
+              <div class="form-group">
+                <label for="businessPhone">Business Phone Number</label>
+                <input type="tel" id="businessPhone" name="businessPhone" />
+                <div class="extension-option">
+                  <div class="checkbox-wrapper">
+                    <input type="checkbox" id="businessPhoneExtCheck" name="businessPhoneExtCheck" />
+                    <label for="businessPhoneExtCheck">Add Extension</label>
+                  </div>
+                  <div class="conditional-field" id="businessPhoneExtField">
+                    <div class="form-group">
+                      <label for="businessPhoneExt">Extension</label>
+                      <input type="text" id="businessPhoneExt" name="businessPhoneExt" />
+                    </div>
+                  </div>
+                </div>
+              </div>
 
               <div class="form-group">
                 <label for="businessEmail">Business Email</label>
@@ -1110,8 +1140,8 @@ class WebInquiryForm extends HTMLElement {
               </div>
 
               <div class="form-group">
-                <label for="businessServices">Business Services</label>
-                <textarea id="businessServices" name="businessServices" placeholder="Type of business?"></textarea>
+                <label for="businessServices">Type of Business/Services</label>
+                <textarea id="businessServices" name="businessServices" placeholder="e.g., Web Design, Marketing, Consulting"></textarea>
               </div>
             </fieldset>
           </div>
@@ -1666,7 +1696,6 @@ class WebInquiryForm extends HTMLElement {
           { id: "email", label: "Email", required: true },
           { id: "phone", label: "Phone", required: true },
           { id: "phoneExt", label: "Phone Extension" },
-          { id: "textNumber", label: "Text Number" },
         ],
       },
       {
@@ -1681,7 +1710,7 @@ class WebInquiryForm extends HTMLElement {
         ],
       },
       {
-        title: "Billing Address",
+        title: "Mailing Address", // Changed from Billing Address to Mailing Address
         step: 2,
         fields: [
           { id: "billingStreet", label: "Street Address", required: true },
@@ -1781,8 +1810,7 @@ class WebInquiryForm extends HTMLElement {
     // Debug logging
     const isFirefox = navigator.userAgent.toLowerCase().includes("firefox");
     console.log("=== FORM SUBMISSION DEBUG ===");
-    console.log("Browser:", isFirefox ? "Firefox" : "Other");
-    console.log("User Agent:", navigator.userAgent);
+    console.log("Browser:", isFirefox ? "Firefox" : "Other", navigator.userAgent);
 
     const form = this.shadowRoot.getElementById("inquiry-form");
     const formData = new FormData(form);
