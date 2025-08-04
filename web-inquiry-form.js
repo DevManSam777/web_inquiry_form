@@ -1699,7 +1699,7 @@ class WebInquiryForm extends HTMLElement {
           { id: "email", label: "Email", required: true },
           { id: "phone", label: "Phone", required: true },
           { id: "phoneExt", label: "Phone Extension" },
-          { id: "textNumber", label: "Text Number" }, // Re-added text number
+          { id: "textNumber", label: "Text Number (if different)" }, // Updated label
         ],
       },
       {
@@ -1878,6 +1878,14 @@ class WebInquiryForm extends HTMLElement {
             section.classList.remove("active");
             if (index === 0) section.classList.add("active");
           });
+
+        // Remove validation classes from all inputs after successful submission
+        const allInputs = this.shadowRoot.querySelectorAll('input, textarea, select');
+        allInputs.forEach(input => {
+            input.classList.remove('valid', 'invalid');
+            this.removeError(input); // Also remove any error messages
+        });
+
 
         this.updateProgress();
         this.updateNavigation();
