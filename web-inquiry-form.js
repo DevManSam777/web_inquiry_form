@@ -596,6 +596,11 @@ class WebInquiryForm extends HTMLElement {
         background-color: rgba(${this.hexToRgb(errorColor)}, 0.05);
       }
 
+      .radio-option input[type="radio"].invalid {
+        border: 2px solid ${errorColor};
+        box-shadow: 0 0 3px rgba(${this.hexToRgb(errorColor)}, 0.3);
+      }
+
       .valid {
         border-color: ${successColor} !important;
         background-color: rgba(${this.hexToRgb(successColor)}, 0.05);
@@ -863,6 +868,11 @@ class WebInquiryForm extends HTMLElement {
       .dark-mode .invalid {
         border-color: ${darkErrorColor} !important;
         background-color: rgba(${this.hexToRgb(darkErrorColor)}, 0.05);
+      }
+
+      .dark-mode .radio-option input[type="radio"].invalid {
+        border: 2px solid ${darkErrorColor};
+        box-shadow: 0 0 3px rgba(${this.hexToRgb(darkErrorColor)}, 0.3);
       }
 
       .dark-mode .valid {
@@ -1335,8 +1345,28 @@ class WebInquiryForm extends HTMLElement {
     });
 
     // Validate current step on input
-    form.addEventListener("input", () => this.validateCurrentStep());
-    form.addEventListener("change", () => this.validateCurrentStep());
+    form.addEventListener("input", (e) => {
+      // Clear validation errors as user types
+      if (e.target.classList.contains("invalid")) {
+        this.removeError(e.target);
+      }
+      this.validateCurrentStep();
+    });
+    form.addEventListener("change", (e) => {
+      // Clear validation errors when radio buttons are selected
+      if (e.target.type === "radio" && e.target.classList.contains("invalid")) {
+        const radioGroup = e.target.closest('.form-group');
+        const allRadiosInGroup = radioGroup.querySelectorAll(`input[name="${e.target.name}"]`);
+        allRadiosInGroup.forEach(radio => {
+          radio.classList.remove("invalid");
+        });
+        const errorMsg = radioGroup.querySelector('.error-message');
+        if (errorMsg) {
+          errorMsg.remove();
+        }
+      }
+      this.validateCurrentStep();
+    });
   }
 
   loadCleavejs() {
@@ -1487,8 +1517,75 @@ class WebInquiryForm extends HTMLElement {
     return isValid;
   }
 
+  showValidationErrors() {
+    const currentSection = this.shadowRoot.querySelector(
+      `.section[data-step="${this.currentStep}"]`
+    );
+
+    if (!currentSection) return;
+
+    // Validate required input fields
+    const requiredFields = currentSection.querySelectorAll(
+      'input[required]:not([type="radio"]), textarea[required]'
+    );
+    requiredFields.forEach((field) => {
+      if (!field.value.trim()) {
+        this.showError(field, "This field is required");
+      }
+    });
+
+    // Validate required radio groups
+    const allRadios = currentSection.querySelectorAll('input[type="radio"]');
+    const radioGroups = {};
+
+    allRadios.forEach((radio) => {
+      if (!radioGroups[radio.name]) {
+        radioGroups[radio.name] = {
+          hasRequired: false,
+          isChecked: false,
+          elements: [],
+        };
+      }
+      radioGroups[radio.name].elements.push(radio);
+      if (radio.required) {
+        radioGroups[radio.name].hasRequired = true;
+      }
+      if (radio.checked) {
+        radioGroups[radio.name].isChecked = true;
+      }
+    });
+
+    // Show error for required radio groups that aren't selected
+    Object.entries(radioGroups).forEach(([groupName, group]) => {
+      if (group.hasRequired && !group.isChecked) {
+        // Find the radio group container and show error
+        const firstRadio = group.elements[0];
+        const radioGroup = firstRadio.closest('.form-group');
+        if (radioGroup) {
+          // Remove existing error message for this group
+          const existingError = radioGroup.querySelector('.error-message');
+          if (existingError) {
+            existingError.remove();
+          }
+          
+          // Add error message to the radio group
+          const errorDiv = document.createElement("div");
+          errorDiv.className = "error-message";
+          errorDiv.textContent = "Please select an option";
+          radioGroup.appendChild(errorDiv);
+          
+          // Add invalid class to all radios in the group
+          group.elements.forEach(radio => {
+            radio.classList.add("invalid");
+          });
+        }
+      }
+    });
+  }
+
   nextStep() {
     if (!this.validateCurrentStep()) {
+      this.showValidationErrors();
       return;
     }
 
