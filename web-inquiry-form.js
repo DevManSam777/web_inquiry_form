@@ -1900,6 +1900,12 @@ class WebInquiryForm extends HTMLElement {
   async handleFormSubmit(event) {
     event.preventDefault();
 
+    // Disable submit button and change text
+    const submitBtn = this.shadowRoot.getElementById("submitBtn");
+    const originalText = submitBtn.textContent;
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Sending...";
+
     // Debug logging
     const isFirefox = navigator.userAgent.toLowerCase().includes("firefox");
     console.log("=== FORM SUBMISSION DEBUG ===");
@@ -1984,6 +1990,10 @@ class WebInquiryForm extends HTMLElement {
         this.updateProgress();
         this.updateNavigation();
 
+        // Re-enable submit button and restore text
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalText;
+
         this.dispatchEvent(
           new CustomEvent("form-success", {
             bubbles: true,
@@ -2014,6 +2024,10 @@ class WebInquiryForm extends HTMLElement {
       }
 
       this.showToast(userMessage, true);
+
+      // Re-enable submit button and restore text
+      submitBtn.disabled = false;
+      submitBtn.textContent = originalText;
 
       this.dispatchEvent(
         new CustomEvent("form-error", {
