@@ -272,7 +272,7 @@ class WebInquiryForm extends HTMLElement {
         font-family: ${fontFamily};
         line-height: 1.6;
         color: ${textColor};
-        max-width: 800px;
+        max-width: 600px;
         margin: 0 auto;
         padding: 20px;
         font-size: ${fontSize};
@@ -538,6 +538,11 @@ class WebInquiryForm extends HTMLElement {
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 15px;
+        margin-bottom: 20px;
+      }
+
+      .address-row .form-group {
+        margin-bottom: 0;
       }
 
       .navigation {
