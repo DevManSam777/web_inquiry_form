@@ -1165,14 +1165,16 @@ class WebInquiryForm extends HTMLElement {
                 <input type="text" id="billingStreet" name="billingStreet" required />
               </div>
 
-              <div class="form-group">
-                <label for="billingAptUnit">Apartment/Unit Number</label>
-                <input type="text" id="billingAptUnit" name="billingAptUnit" />
-              </div>
+              <div class="address-row">
+                <div class="form-group">
+                  <label for="billingAptUnit">Apartment/Unit Number</label>
+                  <input type="text" id="billingAptUnit" name="billingAptUnit" />
+                </div>
 
-              <div class="form-group">
-                <label for="billingCity" class="required">City</label>
-                <input type="text" id="billingCity" name="billingCity" required />
+                <div class="form-group">
+                  <label for="billingCity" class="required">City</label>
+                  <input type="text" id="billingCity" name="billingCity" required />
+                </div>
               </div>
 
               <div class="address-row">
