@@ -1071,14 +1071,16 @@ class WebInquiryForm extends HTMLElement {
               <legend>Personal Information</legend>
               <p class="section-subtitle">Tell us about yourself!</p>
 
-              <div class="form-group">
-                <label for="firstName" class="required">First Name</label>
-                <input type="text" id="firstName" name="firstName" required />
-              </div>
+              <div class="address-row">
+                <div class="form-group">
+                  <label for="firstName" class="required">First Name</label>
+                  <input type="text" id="firstName" name="firstName" required />
+                </div>
 
-              <div class="form-group">
-                <label for="lastName" class="required">Last Name</label>
-                <input type="text" id="lastName" name="lastName" required />
+                <div class="form-group">
+                  <label for="lastName" class="required">Last Name</label>
+                  <input type="text" id="lastName" name="lastName" required />
+                </div>
               </div>
 
               <div class="form-group">
