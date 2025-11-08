@@ -259,7 +259,6 @@ The form collects and submits the following data structure. Optional fields will
   email: "...",
   phone: "...", // Formatted as XXX-XXX-XXXX
   phoneExt: "...", // Optional extension for personal phone
-  textNumber: "...", // Optional text number (if different from phone)
   businessName: "...", // Optional
   businessPhone: "...", // Optional
   businessPhoneExt: "...", // Optional extension for business phone

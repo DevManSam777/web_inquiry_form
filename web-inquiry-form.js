@@ -1104,10 +1104,6 @@ class WebInquiryForm extends HTMLElement {
                 </div>
               </div>
 
-              <div class="form-group">
-                <label for="textNumber">Text Number (if different)</label>
-                <input type="tel" id="textNumber" name="textNumber" />
-              </div>
             </fieldset>
           </div>
 
@@ -1788,7 +1784,6 @@ class WebInquiryForm extends HTMLElement {
           { id: "email", label: "Email", required: true },
           { id: "phone", label: "Phone", required: true },
           { id: "phoneExt", label: "Phone Extension" },
-          { id: "textNumber", label: "Text Number (if different)" }, // Updated label
         ],
       },
       {
