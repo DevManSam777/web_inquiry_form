@@ -32,7 +32,7 @@ A reusable web component for collecting web development inquiries from potential
 ></script>
 ```
 
-### npm
+### npm with Bundler
 
 Install the package:
 
@@ -44,6 +44,30 @@ Import in your JavaScript/TypeScript:
 
 ```javascript
 import '@devmansam/forms/web-inquiry-form';
+```
+
+### npm without Bundler
+
+Install the package:
+
+```bash
+npm install @devmansam/forms
+```
+
+Use with import maps in your HTML:
+
+```html
+<script type="importmap">
+{
+  "imports": {
+    "@devmansam/forms/web-inquiry-form": "./node_modules/@devmansam/forms/web-inquiry-form.js"
+  }
+}
+</script>
+
+<script type="module">
+  import '@devmansam/forms/web-inquiry-form';
+</script>
 ```
 
 ## Basic Usage
