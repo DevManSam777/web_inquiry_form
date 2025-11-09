@@ -916,6 +916,62 @@ class WebInquiryForm extends HTMLElement {
       }
 
       /* Responsive */
+      @media (max-width: 768px) {
+        :host {
+          padding: 8px;
+          max-width: 480px;
+        }
+
+        .form-container {
+          padding: 16px;
+        }
+
+        .form-header h1 {
+          font-size: calc(${fontSize} * 1.25);
+        }
+
+        fieldset {
+          padding: 12px;
+        }
+
+        legend {
+          font-size: ${fontSize};
+        }
+
+        .form-group label {
+          font-size: calc(${fontSize} * 0.875);
+        }
+
+        .step-indicators {
+          font-size: calc(${fontSize} * 0.75);
+        }
+
+        .step-indicator span {
+          display: none;
+        }
+
+        .review-item {
+          grid-template-columns: 1fr;
+          gap: 3px;
+        }
+
+        .review-label {
+          font-weight: 600;
+        }
+
+        .review-section h3 {
+          font-size: ${fontSize};
+        }
+
+        .review-label {
+          font-size: calc(${fontSize} * 0.875);
+        }
+
+        .review-value {
+          font-size: calc(${fontSize} * 0.875);
+        }
+      }
+
       @media (max-width: 480px) {
         :host {
           padding: 4px;
