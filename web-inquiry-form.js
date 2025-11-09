@@ -292,32 +292,32 @@ class WebInquiryForm extends HTMLElement {
         font-family: ${fontFamily};
         line-height: 1.6;
         color: ${textColor};
-        max-width: 600px;
+        max-width: 480px;
         margin: 0 auto;
-        padding: 20px;
+        padding: 16px;
         font-size: ${fontSize};
         letter-spacing: 1px;
       }
-      
+
       .form-container {
-        background-color: ${backgroundColor}; 
-        padding: 30px;
+        background-color: ${backgroundColor};
+        padding: 24px;
         border-radius: ${borderRadius};
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.05);
+        box-shadow: 0 3.2px 6.4px rgba(0, 0, 0, 0.1), 0 1.6px 3.2px rgba(0, 0, 0, 0.08), 0 0.8px 1.6px rgba(0, 0, 0, 0.05);
         border: 1px solid rgba(255, 255, 255, 0.1);
         font-family: ${fontFamily};
       }
-      
+
       .form-header {
         color: ${textColor};
-        margin-bottom: 30px;
+        margin-bottom: 24px;
         text-align: center;
       }
 
       .form-header h1 {
         font-size: calc(${fontSize} * 1.5);
         line-height: 1;
-        margin-bottom: -8px;
+        margin-bottom: -6px;
         font-family: ${fontFamily};
         letter-spacing: 2px;
         color: ${headingColor};
@@ -330,18 +330,18 @@ class WebInquiryForm extends HTMLElement {
       }
 
       .progress-section {
-        margin-bottom: 30px;
-        padding-bottom: 20px;
+        margin-bottom: 24px;
+        padding-bottom: 16px;
         border-bottom: 1px solid ${borderColor};
       }
 
       .progress-bar {
         width: 100%;
-        height: 6px;
+        height: 5px;
         background: rgba(${this.hexToRgb(progressColor)}, 0.1);
         border-radius: calc(${borderRadius} / 2);
         overflow: hidden;
-        margin-bottom: 15px;
+        margin-bottom: 12px;
       }
 
       .progress-fill {
@@ -356,7 +356,7 @@ class WebInquiryForm extends HTMLElement {
         display: flex;
         justify-content: space-between;
         font-size: calc(${fontSize} * 0.875);
-        padding: 0 5px;
+        padding: 0 4px;
         font-family: ${fontFamily};
       }
 
@@ -379,12 +379,12 @@ class WebInquiryForm extends HTMLElement {
       }
 
       .step-dot {
-        width: 20px;
-        height: 20px;
+        width: 16px;
+        height: 16px;
         border-radius: 50%;
         background: ${borderColor};
         color: ${textColor};
-        margin-right: 8px;
+        margin-right: 6px;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -423,8 +423,8 @@ class WebInquiryForm extends HTMLElement {
       fieldset {
         border: 1px solid ${borderColor};
         border-radius: ${borderRadius};
-        padding: 20px;
-        margin-bottom: 25px;
+        padding: 16px;
+        margin-bottom: 20px;
         background-color: ${fieldsetBackgroundColor};
         filter: brightness(0.98);
       }
@@ -434,7 +434,7 @@ class WebInquiryForm extends HTMLElement {
         font-weight: bold;
         color: ${headingColor};
         letter-spacing: 2px;
-        padding: 0 10px;
+        padding: 0 8px;
         font-family: ${fontFamily};
       }
 
@@ -443,17 +443,17 @@ class WebInquiryForm extends HTMLElement {
         opacity: 0.7;
         font-size: ${fontSize};
         text-align: center;
-        margin-top: -10px;
+        margin-top: -8px;
         font-family: ${fontFamily};
       }
 
       .form-group {
-        margin: 0 0 20px 0;
+        margin: 0 0 16px 0;
       }
 
       .form-group label {
         display: block;
-        margin-bottom: 8px;
+        margin-bottom: 6px;
         font-weight: 600;
         font-size: ${fontSize};
         color: ${textColor};
@@ -466,7 +466,7 @@ class WebInquiryForm extends HTMLElement {
       .form-group textarea,
       .form-group select {
         width: 100%;
-        padding: 10px;
+        padding: 8px;
         border: 2px solid ${inputBorderColor};
         border-radius: ${borderRadius};
         box-sizing: border-box;
@@ -479,7 +479,7 @@ class WebInquiryForm extends HTMLElement {
 
       .form-group textarea {
         resize: vertical;
-        min-height: 80px;
+        min-height: 64px;
       }
 
       .form-group input[type="text"]:focus,
@@ -489,29 +489,29 @@ class WebInquiryForm extends HTMLElement {
       .form-group select:focus {
         outline: none;
         border-color: ${primaryColor};
-        box-shadow: 0 0 3px rgba(52, 152, 219, 0.3);
+        box-shadow: 0 0 2px rgba(52, 152, 219, 0.3);
       }
 
       .required::after {
         content: "*";
         color: #e74c3c;
-        margin-left: 4px;
+        margin-left: 3px;
       }
 
       .radio-group {
-        margin-top: 10px;
+        margin-top: 8px;
       }
 
       .radio-option {
         display: flex;
         align-items: center;
-        margin-bottom: 10px;
+        margin-bottom: 8px;
         width: 100%;
       }
 
       .radio-option input[type="radio"] {
         width: auto;
-        margin-right: 8px;
+        margin-right: 6px;
         margin-bottom: 0;
         flex-shrink: 0;
       }
@@ -527,19 +527,19 @@ class WebInquiryForm extends HTMLElement {
       }
 
       .extension-option {
-        margin-top: 15px;
-        padding: 15px;
+        margin-top: 12px;
+        padding: 12px;
       }
 
       .checkbox-wrapper {
         display: flex;
         align-items: center;
-        margin-bottom: 10px;
+        margin-bottom: 8px;
       }
 
       .checkbox-wrapper input[type="checkbox"] {
         width: auto;
-        margin-right: 8px;
+        margin-right: 6px;
       }
 
       .checkbox-wrapper label {
@@ -551,7 +551,7 @@ class WebInquiryForm extends HTMLElement {
 
       .conditional-field {
         display: none;
-        margin-top: 10px;
+        margin-top: 8px;
       }
 
       .conditional-field.show {
@@ -561,8 +561,8 @@ class WebInquiryForm extends HTMLElement {
       .address-row {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 15px;
-        margin-bottom: 20px;
+        gap: 12px;
+        margin-bottom: 16px;
       }
 
       .address-row .form-group {
@@ -573,20 +573,20 @@ class WebInquiryForm extends HTMLElement {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-top: 30px;
-        padding-top: 20px;
+        margin-top: 24px;
+        padding-top: 16px;
         border-top: 1px solid ${borderColor};
       }
 
       .btn {
-        padding: 12px 20px;
+        padding: 10px 16px;
         border: none;
         border-radius: ${borderRadius};
         font-size: ${fontSize};
         font-family: ${fontFamily};
         cursor: pointer;
         transition: background-color 0.3s, opacity 0.2s ease;
-        min-width: 120px;
+        min-width: 96px;
       }
 
       .btn:disabled {
@@ -637,13 +637,13 @@ class WebInquiryForm extends HTMLElement {
 
       .toast {
         position: fixed;
-        bottom: 350px;
-        right: 20px;
+        bottom: 280px;
+        right: 16px;
         background: ${successColor};
         color: white;
-        padding: 15px 20px;
+        padding: 12px 16px;
         border-radius: ${borderRadius};
-        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+        box-shadow: 0 5px 13px rgba(0, 0, 0, 0.2);
         z-index: 1000;
         transform: translateX(100%);
         transition: transform 0.3s ease, opacity 0.3s ease;
@@ -651,8 +651,8 @@ class WebInquiryForm extends HTMLElement {
         font-family: ${fontFamily};
         font-size: calc(${fontSize} * 0.875);
         font-weight: 500;
-        min-width: 200px;
-        max-width: 400px;
+        min-width: 160px;
+        max-width: 320px;
         word-wrap: break-word;
         display: block;
       }
@@ -673,14 +673,14 @@ class WebInquiryForm extends HTMLElement {
       /* Review Section */
       .review-container {
         display: grid;
-        gap: 20px;
+        gap: 16px;
       }
 
       .review-section {
         background: ${fieldsetBackgroundColor};
         filter: brightness(0.98);
         border-radius: ${borderRadius};
-        padding: 20px;
+        padding: 16px;
         border: 1px solid ${borderColor};
       }
 
@@ -688,17 +688,17 @@ class WebInquiryForm extends HTMLElement {
         color: ${textColor};
         font-size: ${fontSize};
         font-weight: 600;
-        margin-bottom: 15px;
+        margin-bottom: 12px;
         border-bottom: 1px solid ${borderColor};
-        padding-bottom: 8px;
+        padding-bottom: 6px;
         font-family: ${fontFamily};
       }
 
       .review-item {
         display: grid;
-        grid-template-columns: 160px 1fr;
-        gap: 12px;
-        margin-bottom: 8px;
+        grid-template-columns: 128px 1fr;
+        gap: 10px;
+        margin-bottom: 6px;
         align-items: start;
       }
 
@@ -727,13 +727,13 @@ class WebInquiryForm extends HTMLElement {
         background: none;
         border: 1px solid ${primaryColor};
         color: ${primaryColor};
-        padding: 6px 12px;
+        padding: 5px 10px;
         border-radius: ${borderRadius};
         font-size: calc(${fontSize} * 0.875);
         font-family: ${fontFamily};
         cursor: pointer;
         transition: all 0.2s ease;
-        margin-top: 10px;
+        margin-top: 8px;
       }
 
       .edit-step-btn:hover {
@@ -917,12 +917,12 @@ class WebInquiryForm extends HTMLElement {
       /* Responsive */
       @media (max-width: 768px) {
         :host {
-          padding: 10px;
-          max-width: 600px;
+          padding: 8px;
+          max-width: 480px;
         }
 
         .form-container {
-          padding: 20px;
+          padding: 16px;
         }
 
         .form-header h1 {
@@ -930,7 +930,7 @@ class WebInquiryForm extends HTMLElement {
         }
 
         fieldset {
-          padding: 15px;
+          padding: 12px;
         }
 
         legend {
@@ -951,7 +951,7 @@ class WebInquiryForm extends HTMLElement {
 
         .review-item {
           grid-template-columns: 1fr;
-          gap: 4px;
+          gap: 3px;
         }
 
         .review-label {
@@ -973,12 +973,12 @@ class WebInquiryForm extends HTMLElement {
 
       @media (max-width: 480px) {
         :host {
-          padding: 5px;
-          max-width: 600px;
+          padding: 4px;
+          max-width: 480px;
         }
 
         .form-container {
-          padding: 15px;
+          padding: 12px;
         }
 
         .form-header h1 {
@@ -990,7 +990,7 @@ class WebInquiryForm extends HTMLElement {
         }
 
         fieldset {
-          padding: 10px;
+          padding: 8px;
         }
 
         legend {
@@ -1015,8 +1015,8 @@ class WebInquiryForm extends HTMLElement {
 
         .btn {
           font-size: calc(${fontSize} * 0.875);
-          padding: 10px 16px;
-          min-width: 100px;
+          padding: 8px 13px;
+          min-width: 80px;
         }
 
         .review-section h3 {
@@ -1033,7 +1033,7 @@ class WebInquiryForm extends HTMLElement {
 
         .edit-step-btn {
           font-size: calc(${fontSize} * 0.75);
-          padding: 4px 8px;
+          padding: 3px 6px;
         }
       }
     `;
