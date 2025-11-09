@@ -358,7 +358,7 @@ class WebInquiryForm extends HTMLElement {
         font-size: calc(${fontSize} * 0.75);
         padding: 0 4px;
         font-family: ${fontFamily};
-        letter-spacing: 0;
+        letter-spacing: 0.7px;
       }
 
       .step-indicator {
