@@ -133,6 +133,9 @@ Configure specific colors for dark mode. These will be applied automatically whe
   dark-primary-color="#60a5fa"
   dark-background-color="#1f2937"
   dark-text-color="#f9fafb"
+  dark-button-color="#3b82f6"
+  dark-button-text-color="#ffffff"
+  dark-heading-color="#f9fafb"
   dark-input-background-color="#374151"
   dark-fieldset-background-color="#1f2937"
   dark-success-color="#4ade80"
@@ -167,10 +170,13 @@ These attributes allow you to deeply customize the form's appearance and behavio
 
 | Attribute                   | Description                                                     | Default                  |
 | --------------------------- | --------------------------------------------------------------- | ------------------------ |
-| `primary-color`             | Main button and accent color                                    | `#3498db`                |
+| `primary-color`             | Main accent color (used for progress indicators)                | `#3498db`                |
 | `background-color`          | Main form container background color                            | `#ffffff`                |
 | `text-color`                | General text color                                              | `#333333`                |
 | `border-color`              | General border color (e.g., fieldsets, progress bar background) | `#aaaaaa`                |
+| `button-color`              | Background color for primary buttons                            | Same as primary-color    |
+| `button-text-color`         | Text color for all buttons                                      | `#ffffff`                |
+| `heading-color`             | Color for form headings and legend text                         | Same as text-color       |
 | `input-background-color`    | Background color for input fields and textareas                 | Same as background-color |
 | `input-text-color`          | Text color within input fields and textareas                    | Same as text-color       |
 | `input-border-color`        | Border color for input fields and textareas                     | Same as border-color     |
@@ -183,10 +189,13 @@ These attributes allow you to deeply customize the form's appearance and behavio
 
 | Attribute                        | Description                            | Default                       |
 | -------------------------------- | -------------------------------------- | ----------------------------- |
-| `dark-primary-color`             | Primary color for dark mode            | `#60a5fa`                     |
+| `dark-primary-color`             | Primary accent color for dark mode     | `#60a5fa`                     |
 | `dark-background-color`          | Background color for dark mode         | `#1e2026`                     |
 | `dark-text-color`                | Text color for dark mode               | `#e9ecef`                     |
 | `dark-border-color`              | Border color for dark mode             | `#495057`                     |
+| `dark-button-color`              | Button background for dark mode        | Same as dark-primary-color    |
+| `dark-button-text-color`         | Button text color for dark mode        | `#ffffff`                     |
+| `dark-heading-color`             | Heading text color for dark mode       | Same as dark-text-color       |
 | `dark-input-background-color`    | Input field background for dark mode   | Same as dark-background-color |
 | `dark-input-text-color`          | Input field text color for dark mode   | Same as dark-text-color       |
 | `dark-input-border-color`        | Input field border color for dark mode | Same as dark-border-color     |

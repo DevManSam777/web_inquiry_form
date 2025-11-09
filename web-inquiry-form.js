@@ -39,6 +39,12 @@ class WebInquiryForm extends HTMLElement {
       "dark-success-color",
       "dark-error-color",
       "dark-progress-color",
+      "button-color",
+      "button-text-color",
+      "dark-button-color",
+      "dark-button-text-color",
+      "heading-color",
+      "dark-heading-color",
     ];
   }
 
@@ -243,6 +249,13 @@ class WebInquiryForm extends HTMLElement {
     const errorColor = this.getAttribute("error-color") || "#d32f2f";
     const progressColor = this.getAttribute("progress-color") || primaryColor;
 
+    // Button colors
+    const buttonColor = this.getAttribute("button-color") || primaryColor;
+    const buttonTextColor = this.getAttribute("button-text-color") || "#ffffff";
+
+    // Heading colors
+    const headingColor = this.getAttribute("heading-color") || textColor;
+
     // Dark mode variants
     const darkPrimaryColor =
       this.getAttribute("dark-primary-color") || "#60a5fa";
@@ -265,6 +278,13 @@ class WebInquiryForm extends HTMLElement {
     const darkErrorColor = this.getAttribute("dark-error-color") || "#f87171";
     const darkProgressColor =
       this.getAttribute("dark-progress-color") || darkPrimaryColor;
+
+    // Dark mode button colors
+    const darkButtonColor = this.getAttribute("dark-button-color") || darkPrimaryColor;
+    const darkButtonTextColor = this.getAttribute("dark-button-text-color") || "#ffffff";
+
+    // Dark mode heading colors
+    const darkHeadingColor = this.getAttribute("dark-heading-color") || darkTextColor;
 
     return `
       :host {
@@ -300,6 +320,7 @@ class WebInquiryForm extends HTMLElement {
         margin-bottom: -8px;
         font-family: ${fontFamily};
         letter-spacing: 2px;
+        color: ${headingColor};
       }
 
       .form-header p {
@@ -374,12 +395,12 @@ class WebInquiryForm extends HTMLElement {
 
       .step-indicator.active .step-dot {
         background: ${progressColor};
-        color: white;
+        color: ${buttonTextColor};
       }
 
       .step-indicator.completed .step-dot {
         background: ${successColor};
-        color: white;
+        color: ${buttonTextColor};
       }
 
       .section {
@@ -411,7 +432,7 @@ class WebInquiryForm extends HTMLElement {
       legend {
         font-size: calc(${fontSize} * 1.125);
         font-weight: bold;
-        color: ${textColor};
+        color: ${headingColor};
         letter-spacing: 2px;
         padding: 0 10px;
         font-family: ${fontFamily};
@@ -575,7 +596,7 @@ class WebInquiryForm extends HTMLElement {
 
       .btn-secondary {
         background-color: #6c757d;
-        color: white;
+        color: ${buttonTextColor};
       }
 
       .btn-secondary:hover:not(:disabled) {
@@ -583,8 +604,8 @@ class WebInquiryForm extends HTMLElement {
       }
 
       .btn-primary {
-        background-color: ${primaryColor};
-        color: white;
+        background-color: ${buttonColor};
+        color: ${buttonTextColor};
       }
 
       .btn-primary:hover:not(:disabled) {
@@ -733,7 +754,7 @@ class WebInquiryForm extends HTMLElement {
       }
 
       .dark-mode legend {
-        color: ${darkTextColor};
+        color: ${darkHeadingColor};
       }
 
       .dark-mode .progress-section {
@@ -745,7 +766,7 @@ class WebInquiryForm extends HTMLElement {
       }
 
       .dark-mode .form-header h1 {
-        color: ${darkTextColor};
+        color: ${darkHeadingColor};
       }
 
       .dark-mode .section-subtitle {
@@ -775,12 +796,12 @@ class WebInquiryForm extends HTMLElement {
 
       .dark-mode .step-indicator.active .step-dot {
         background: ${darkProgressColor};
-        color: white;
+        color: ${buttonTextColor};
       }
 
       .dark-mode .step-indicator.completed .step-dot {
         background: ${darkSuccessColor};
-        color: white;
+        color: ${buttonTextColor};
       }
 
       .dark-mode .progress-fill {
@@ -824,7 +845,12 @@ class WebInquiryForm extends HTMLElement {
       }
 
       .dark-mode .btn-primary {
-        background-color: ${darkPrimaryColor};
+        background-color: ${darkButtonColor};
+        color: ${darkButtonTextColor};
+      }
+
+      .dark-mode .btn-secondary {
+        color: ${darkButtonTextColor};
       }
 
       .dark-mode .review-section {
