@@ -38,7 +38,7 @@ Include it directly from GitHub using CDN:
 
 ```html
 <script
-  src="https://cdn.jsdelivr.net/gh/DevManSam777/web_inquiry_form@main/web-inquiry-form.js"
+  src="https://cdn.jsdelivr.net/gh/DevManSam777/web_inquiry_form@latest/web-inquiry-form.js"
   defer
 ></script>
 ```
