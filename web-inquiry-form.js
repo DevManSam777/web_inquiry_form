@@ -797,12 +797,12 @@ class WebInquiryForm extends HTMLElement {
 
       .dark-mode .step-indicator.active .step-dot {
         background: ${darkProgressColor};
-        color: ${buttonTextColor};
+        color: ${darkButtonTextColor};
       }
 
       .dark-mode .step-indicator.completed .step-dot {
         background: ${darkSuccessColor};
-        color: ${buttonTextColor};
+        color: ${darkButtonTextColor};
       }
 
       .dark-mode .progress-fill {
