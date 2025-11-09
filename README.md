@@ -23,16 +23,26 @@ A reusable web component for collecting web development inquiries from potential
 
 ## Installation
 
-### Option 1: Local Installation
+### npm Package (Recommended)
 
-1. Download the `web-inquiry-form.js` file
-2. Include it in your HTML file:
+Install the package:
 
-```html
-<script src="path/to/web-inquiry-form.js" defer></script>
+```bash
+npm install @devmansam/forms
 ```
 
-### Option 2: CDN Installation
+Import in your JavaScript/TypeScript:
+
+```javascript
+// Import the web inquiry form
+import '@devmansam/forms/web-inquiry-form';
+```
+
+> **Note**: The `@devmansam/forms` package includes both the web inquiry form and minimalist contact form. You can import them individually as shown above, or import both with `import '@devmansam/forms'`.
+
+For bundlers like Vite, Webpack, or Rollup, this is the recommended approach. The forms are native Web Components and work with any framework (React, Vue, Angular, Svelte, etc.) or vanilla JavaScript.
+
+### CDN
 
 Include it directly from GitHub using CDN:
 
