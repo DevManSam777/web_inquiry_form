@@ -889,6 +889,7 @@ class WebInquiryForm extends HTMLElement {
       @media (max-width: 768px) {
         :host {
           padding: 10px;
+          max-width: 600px;
         }
 
         .form-container {
@@ -909,10 +910,6 @@ class WebInquiryForm extends HTMLElement {
 
         .form-group label {
           font-size: calc(${fontSize} * 0.875);
-        }
-
-        .address-row {
-          grid-template-columns: 1fr;
         }
 
         .step-indicators {
@@ -948,6 +945,7 @@ class WebInquiryForm extends HTMLElement {
       @media (max-width: 480px) {
         :host {
           padding: 5px;
+          max-width: 600px;
         }
 
         .form-container {
@@ -976,6 +974,10 @@ class WebInquiryForm extends HTMLElement {
 
         .form-group label {
           font-size: calc(${fontSize} * 0.75);
+        }
+
+        .address-row {
+          grid-template-columns: 1fr;
         }
 
         .step-indicators {
