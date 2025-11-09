@@ -1199,7 +1199,7 @@ class WebInquiryForm extends HTMLElement {
 
               <div class="address-row">
                 <div class="form-group">
-                  <label for="billingAptUnit">Apartment/Unit Number</label>
+                  <label for="billingAptUnit">Apt/Unit</label>
                   <input type="text" id="billingAptUnit" name="billingAptUnit" />
                 </div>
 
