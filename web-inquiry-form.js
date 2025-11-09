@@ -276,6 +276,7 @@ class WebInquiryForm extends HTMLElement {
         margin: 0 auto;
         padding: 20px;
         font-size: ${fontSize};
+        letter-spacing: 1px;
       }
       
       .form-container {
@@ -298,6 +299,7 @@ class WebInquiryForm extends HTMLElement {
         line-height: 1;
         margin-bottom: -8px;
         font-family: ${fontFamily};
+        letter-spacing: 2px;
       }
 
       .form-header p {
@@ -410,6 +412,7 @@ class WebInquiryForm extends HTMLElement {
         font-size: calc(${fontSize} * 1.125);
         font-weight: bold;
         color: ${textColor};
+        letter-spacing: 2px;
         padding: 0 10px;
         font-family: ${fontFamily};
       }
