@@ -45,6 +45,10 @@ class WebInquiryForm extends HTMLElement {
       "dark-button-text-color",
       "heading-color",
       "dark-heading-color",
+      "back-button-color",
+      "back-button-text-color",
+      "dark-back-button-color",
+      "dark-back-button-text-color",
     ];
   }
 
@@ -119,7 +123,7 @@ class WebInquiryForm extends HTMLElement {
       link.href = `https://fonts.googleapis.com/css2?family=${googleFont.replace(
         /\s+/g,
         "+"
-      )}:wght@400;500;600&display=swap`;
+      )}:wght@400;500;600;700&display=swap`;
 
       link.onload = () => {
         this.googleFontLoaded = true;
@@ -253,6 +257,10 @@ class WebInquiryForm extends HTMLElement {
     const buttonColor = this.getAttribute("button-color") || primaryColor;
     const buttonTextColor = this.getAttribute("button-text-color") || "#ffffff";
 
+    // Back button colors
+    const backButtonColor = this.getAttribute("back-button-color") || primaryColor;
+    const backButtonTextColor = this.getAttribute("back-button-text-color") || buttonTextColor;
+
     // Heading colors
     const headingColor = this.getAttribute("heading-color") || textColor;
 
@@ -283,6 +291,10 @@ class WebInquiryForm extends HTMLElement {
     const darkButtonColor = this.getAttribute("dark-button-color") || darkPrimaryColor;
     const darkButtonTextColor = this.getAttribute("dark-button-text-color") || "#ffffff";
 
+    // Dark mode back button colors
+    const darkBackButtonColor = this.getAttribute("dark-back-button-color") || darkPrimaryColor;
+    const darkBackButtonTextColor = this.getAttribute("dark-back-button-text-color") || darkButtonTextColor;
+
     // Dark mode heading colors
     const darkHeadingColor = this.getAttribute("dark-heading-color") || darkTextColor;
 
@@ -292,7 +304,7 @@ class WebInquiryForm extends HTMLElement {
         font-family: ${fontFamily};
         line-height: 1.6;
         color: ${textColor};
-        max-width: 532px;
+        max-width: 600px;
         margin: 0 auto;
         padding: 16px;
         font-size: ${fontSize};
@@ -596,12 +608,12 @@ class WebInquiryForm extends HTMLElement {
       }
 
       .btn-secondary {
-        background-color: #6c757d;
-        color: ${buttonTextColor};
+        background-color: ${backButtonColor};
+        color: ${backButtonTextColor};
       }
 
       .btn-secondary:hover:not(:disabled) {
-        background-color: #5a6268;
+        opacity: 0.9;
       }
 
       .btn-primary {
@@ -611,6 +623,19 @@ class WebInquiryForm extends HTMLElement {
 
       .btn-primary:hover:not(:disabled) {
         opacity: 0.9;
+      }
+
+      [role="alert"] {
+        color: ${errorColor};
+        font-size: calc(${fontSize} * 0.75);
+        margin-top: 4px;
+        font-weight: 500;
+        font-family: ${fontFamily};
+        display: none;
+      }
+
+      [role="alert"]:not(:empty) {
+        display: block;
       }
 
       .error-message {
@@ -851,7 +876,8 @@ class WebInquiryForm extends HTMLElement {
       }
 
       .dark-mode .btn-secondary {
-        color: ${darkButtonTextColor};
+        background-color: ${darkBackButtonColor};
+        color: ${darkBackButtonTextColor};
       }
 
       .dark-mode .review-section {
@@ -894,6 +920,10 @@ class WebInquiryForm extends HTMLElement {
 
       .dark-mode .toast.error {
         background: ${darkErrorColor};
+      }
+
+      .dark-mode [role="alert"] {
+        color: ${darkErrorColor};
       }
 
       .dark-mode .error-message {
@@ -1068,76 +1098,81 @@ class WebInquiryForm extends HTMLElement {
 
       <div class="form-container">
         <div class="form-header">
-          <h1>${
+          <h1 id="form-title">${
             this.getAttribute("form-title") || "Web Development Inquiry"
           }</h1>
         </div>
 
-        <div class="progress-section">
-          <div class="progress-bar">
+        <div class="progress-section" role="navigation" aria-label="Form progress">
+          <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="Form completion progress">
             <div class="progress-fill"></div>
           </div>
           <div class="step-indicators">
-            <div class="step-indicator active" data-step="0">
-              <div class="step-dot">1</div>
+            <div class="step-indicator active" data-step="0" aria-current="step">
+              <div class="step-dot" aria-hidden="true">1</div>
                <span>Personal</span>
             </div>
             <div class="step-indicator" data-step="1">
-              <div class="step-dot">2</div>
+              <div class="step-dot" aria-hidden="true">2</div>
                <span>Business</span>
             </div>
             <div class="step-indicator" data-step="2">
-              <div class="step-dot">3</div>
+              <div class="step-dot" aria-hidden="true">3</div>
               <span>Address</span>
             </div>
             <div class="step-indicator" data-step="3">
-              <div class="step-dot">4</div>
+              <div class="step-dot" aria-hidden="true">4</div>
                <span>Service</span>
             </div>
             <div class="step-indicator" data-step="4">
-              <div class="step-dot">5</div>
+              <div class="step-dot" aria-hidden="true">5</div>
                <span>Review</span>
             </div>
           </div>
         </div>
 
-        <form id="inquiry-form">
+        <form id="inquiry-form" role="form" aria-labelledby="form-title">
           <!-- Step 1: Personal Information -->
-          <div class="section active" data-step="0">
+          <div class="section active" data-step="0" role="group" aria-labelledby="step1-legend">
             <fieldset>
-              <legend>Personal Information</legend>
+              <legend id="step1-legend">Personal Information</legend>
               <p class="section-subtitle">Tell us about yourself!</p>
 
               <div class="address-row">
                 <div class="form-group">
-                  <label for="firstName" class="required">First Name</label>
-                  <input type="text" id="firstName" name="firstName" required />
+                  <label for="firstName" id="firstName-label" class="required">First Name</label>
+                  <input type="text" id="firstName" name="firstName" required aria-required="true" aria-invalid="false" aria-describedby="firstName-error" />
+                  <div id="firstName-error" role="alert" aria-live="assertive"></div>
                 </div>
 
                 <div class="form-group">
-                  <label for="lastName" class="required">Last Name</label>
-                  <input type="text" id="lastName" name="lastName" required />
+                  <label for="lastName" id="lastName-label" class="required">Last Name</label>
+                  <input type="text" id="lastName" name="lastName" required aria-required="true" aria-invalid="false" aria-describedby="lastName-error" />
+                  <div id="lastName-error" role="alert" aria-live="assertive"></div>
                 </div>
               </div>
 
               <div class="form-group">
-                <label for="email" class="required">Email Address</label>
-                <input type="email" id="email" name="email" required />
+                <label for="email" id="email-label" class="required">Email Address</label>
+                <input type="email" id="email" name="email" required aria-required="true" aria-invalid="false" aria-describedby="email-error" />
+                <div id="email-error" role="alert" aria-live="assertive"></div>
               </div>
 
               <div class="form-group">
-                <label for="phone" class="required">Phone Number</label>
-                <input type="tel" id="phone" name="phone" required />
-                
+                <label for="phone" id="phone-label" class="required">Phone Number</label>
+                <input type="tel" id="phone" name="phone" required aria-required="true" aria-invalid="false" aria-describedby="phone-error" />
+                <div id="phone-error" role="alert" aria-live="assertive"></div>
+
                 <div class="extension-option">
                   <div class="checkbox-wrapper">
-                    <input type="checkbox" id="phoneExtCheck" name="phoneExtCheck" />
+                    <input type="checkbox" id="phoneExtCheck" name="phoneExtCheck" aria-label="Add phone extension" />
                     <label for="phoneExtCheck">Add Extension</label>
                   </div>
-                  <div class="conditional-field" id="phoneExtField">
+                  <div class="conditional-field" id="phoneExtField" aria-hidden="true">
                     <div class="form-group">
-                      <label for="phoneExt">Extension</label>
-                      <input type="text" id="phoneExt" name="phoneExt" />
+                      <label for="phoneExt" id="phoneExt-label">Extension</label>
+                      <input type="text" id="phoneExt" name="phoneExt" aria-required="false" aria-invalid="false" aria-describedby="phoneExt-error" />
+                      <div id="phoneExt-error" role="alert" aria-live="assertive"></div>
                     </div>
                   </div>
                 </div>
@@ -1147,97 +1182,108 @@ class WebInquiryForm extends HTMLElement {
           </div>
 
           <!-- Step 2: Business Information (ADDED) -->
-          <div class="section" data-step="1">
+          <div class="section" data-step="1" role="group" aria-labelledby="step2-legend">
             <fieldset>
-              <legend>Business Information</legend>
+              <legend id="step2-legend">Business Information</legend>
               <p class="section-subtitle">Tell us about your business.</p>
 
               <div class="form-group">
-                <label for="businessName">Business Name</label>
-                <input type="text" id="businessName" name="businessName" />
+                <label for="businessName" id="businessName-label">Business Name</label>
+                <input type="text" id="businessName" name="businessName" aria-required="false" aria-invalid="false" aria-describedby="businessName-error" />
+                <div id="businessName-error" role="alert" aria-live="assertive"></div>
               </div>
 
               <div class="form-group">
-                <label for="businessPhone">Business Phone Number</label>
-                <input type="tel" id="businessPhone" name="businessPhone" />
+                <label for="businessPhone" id="businessPhone-label">Business Phone Number</label>
+                <input type="tel" id="businessPhone" name="businessPhone" aria-required="false" aria-invalid="false" aria-describedby="businessPhone-error" />
+                <div id="businessPhone-error" role="alert" aria-live="assertive"></div>
                 <div class="extension-option">
                   <div class="checkbox-wrapper">
-                    <input type="checkbox" id="businessPhoneExtCheck" name="businessPhoneExtCheck" />
+                    <input type="checkbox" id="businessPhoneExtCheck" name="businessPhoneExtCheck" aria-label="Add business phone extension" />
                     <label for="businessPhoneExtCheck">Add Extension</label>
                   </div>
-                  <div class="conditional-field" id="businessPhoneExtField">
+                  <div class="conditional-field" id="businessPhoneExtField" aria-hidden="true">
                     <div class="form-group">
-                      <label for="businessPhoneExt">Extension</label>
-                      <input type="text" id="businessPhoneExt" name="businessPhoneExt" />
+                      <label for="businessPhoneExt" id="businessPhoneExt-label">Extension</label>
+                      <input type="text" id="businessPhoneExt" name="businessPhoneExt" aria-required="false" aria-invalid="false" aria-describedby="businessPhoneExt-error" />
+                      <div id="businessPhoneExt-error" role="alert" aria-live="assertive"></div>
                     </div>
                   </div>
                 </div>
               </div>
 
               <div class="form-group">
-                <label for="businessEmail">Business Email</label>
-                <input type="email" id="businessEmail" name="businessEmail" />
+                <label for="businessEmail" id="businessEmail-label">Business Email</label>
+                <input type="email" id="businessEmail" name="businessEmail" aria-required="false" aria-invalid="false" aria-describedby="businessEmail-error" />
+                <div id="businessEmail-error" role="alert" aria-live="assertive"></div>
               </div>
 
               <div class="form-group">
-                <label for="businessServices">Type of Business/Services</label>
-                <textarea id="businessServices" name="businessServices" placeholder="e.g., Web Design, Marketing, Consulting"></textarea>
+                <label for="businessServices" id="businessServices-label">Type of Business/Services</label>
+                <textarea id="businessServices" name="businessServices" placeholder="e.g., Web Design, Marketing, Consulting" aria-required="false" aria-invalid="false" aria-describedby="businessServices-error"></textarea>
+                <div id="businessServices-error" role="alert" aria-live="assertive"></div>
               </div>
             </fieldset>
           </div>
 
           <!-- Step 3: Mailing Address -->
-          <div class="section" data-step="2">
+          <div class="section" data-step="2" role="group" aria-labelledby="step3-legend">
             <fieldset>
-              <legend>Mailing Address</legend>
+              <legend id="step3-legend">Mailing Address</legend>
               <p class="section-subtitle">What is your mailing address?</p>
 
               <div class="form-group">
-                <label for="billingStreet" class="required">Street Address</label>
-                <input type="text" id="billingStreet" name="billingStreet" required />
+                <label for="billingStreet" id="billingStreet-label" class="required">Street Address</label>
+                <input type="text" id="billingStreet" name="billingStreet" required aria-required="true" aria-invalid="false" aria-describedby="billingStreet-error" />
+                <div id="billingStreet-error" role="alert" aria-live="assertive"></div>
               </div>
 
               <div class="address-row">
                 <div class="form-group">
-                  <label for="billingAptUnit">Apt/Unit</label>
-                  <input type="text" id="billingAptUnit" name="billingAptUnit" />
+                  <label for="billingAptUnit" id="billingAptUnit-label">Apt/Unit</label>
+                  <input type="text" id="billingAptUnit" name="billingAptUnit" aria-required="false" aria-invalid="false" aria-describedby="billingAptUnit-error" />
+                  <div id="billingAptUnit-error" role="alert" aria-live="assertive"></div>
                 </div>
 
                 <div class="form-group">
-                  <label for="billingCity" class="required">City</label>
-                  <input type="text" id="billingCity" name="billingCity" required />
+                  <label for="billingCity" id="billingCity-label" class="required">City</label>
+                  <input type="text" id="billingCity" name="billingCity" required aria-required="true" aria-invalid="false" aria-describedby="billingCity-error" />
+                  <div id="billingCity-error" role="alert" aria-live="assertive"></div>
                 </div>
               </div>
 
               <div class="address-row">
                 <div class="form-group">
-                  <label for="billingState" class="required">State/Province</label>
-                  <input type="text" id="billingState" name="billingState" required />
+                  <label for="billingState" id="billingState-label" class="required">State/Province</label>
+                  <input type="text" id="billingState" name="billingState" required aria-required="true" aria-invalid="false" aria-describedby="billingState-error" />
+                  <div id="billingState-error" role="alert" aria-live="assertive"></div>
                 </div>
                 <div class="form-group">
-                  <label for="billingZipCode" class="required">ZIP/Postal Code</label>
-                  <input type="text" id="billingZipCode" name="billingZipCode" required />
+                  <label for="billingZipCode" id="billingZipCode-label" class="required">ZIP/Postal Code</label>
+                  <input type="text" id="billingZipCode" name="billingZipCode" required aria-required="true" aria-invalid="false" aria-describedby="billingZipCode-error" />
+                  <div id="billingZipCode-error" role="alert" aria-live="assertive"></div>
                 </div>
               </div>
 
               <div class="form-group">
-                <label for="billingCountry" class="required">Country</label>
-                <input type="text" id="billingCountry" name="billingCountry" value="USA" required />
+                <label for="billingCountry" id="billingCountry-label" class="required">Country</label>
+                <input type="text" id="billingCountry" name="billingCountry" value="USA" required aria-required="true" aria-invalid="false" aria-describedby="billingCountry-error" />
+                <div id="billingCountry-error" role="alert" aria-live="assertive"></div>
               </div>
             </fieldset>
           </div>
 
           <!-- Step 4: Service Details -->
-          <div class="section" data-step="3">
+          <div class="section" data-step="3" role="group" aria-labelledby="step4-legend">
             <fieldset>
-              <legend>Service Details</legend>
+              <legend id="step4-legend">Service Details</legend>
               <p class="section-subtitle">What can we help you with?</p>
 
               <div class="form-group">
-                <label class="required">Preferred Contact Method</label>
-                <div class="radio-group">
+                <label id="preferredContact-label" class="required">Preferred Contact Method</label>
+                <div class="radio-group" role="radiogroup" aria-labelledby="preferredContact-label" aria-required="true" aria-describedby="preferredContact-error">
                   <div class="radio-option">
-                    <input type="radio" id="contactPhone" name="preferredContact" value="phone" required />
+                    <input type="radio" id="contactPhone" name="preferredContact" value="phone" required aria-required="true" />
                     <label for="contactPhone">Phone</label>
                   </div>
                   <div class="radio-option">
@@ -1257,13 +1303,14 @@ class WebInquiryForm extends HTMLElement {
                     <label for="contactBusinessEmail">Business Email</label>
                   </div>
                 </div>
+                <div id="preferredContact-error" role="alert" aria-live="assertive"></div>
               </div>
 
               <div class="form-group">
-                <label class="required">Service Desired</label>
-                <div class="radio-group">
+                <label id="serviceDesired-label" class="required">Service Desired</label>
+                <div class="radio-group" role="radiogroup" aria-labelledby="serviceDesired-label" aria-required="true" aria-describedby="serviceDesired-error">
                   <div class="radio-option">
-                    <input type="radio" id="serviceWebsite" name="serviceDesired" value="Web Development" required />
+                    <input type="radio" id="serviceWebsite" name="serviceDesired" value="Web Development" required aria-required="true" />
                     <label for="serviceWebsite">Website</label>
                   </div>
                   <div class="radio-option">
@@ -1271,11 +1318,12 @@ class WebInquiryForm extends HTMLElement {
                     <label for="serviceApp">App Development</label>
                   </div>
                 </div>
+                <div id="serviceDesired-error" role="alert" aria-live="assertive"></div>
               </div>
 
               <div class="form-group">
-                <label>Do you currently have a website?</label>
-                <div class="radio-group">
+                <label id="hasWebsite-label">Do you currently have a website?</label>
+                <div class="radio-group" role="radiogroup" aria-labelledby="hasWebsite-label" aria-required="false" aria-describedby="hasWebsite-error">
                   <div class="radio-option">
                     <input type="radio" id="websiteYes" name="hasWebsite" value="yes" />
                     <label for="websiteYes">Yes</label>
@@ -1285,38 +1333,41 @@ class WebInquiryForm extends HTMLElement {
                     <label for="websiteNo">No</label>
                   </div>
                 </div>
+                <div id="hasWebsite-error" role="alert" aria-live="assertive"></div>
 
-                <div class="conditional-field" id="websiteAddressField">
+                <div class="conditional-field" id="websiteAddressField" aria-hidden="true">
                   <div class="form-group">
-                    <label for="websiteAddress">Website Address</label>
-                    <input type="text" id="websiteAddress" name="websiteAddress" placeholder="example.com" />
+                    <label for="websiteAddress" id="websiteAddress-label">Website Address</label>
+                    <input type="text" id="websiteAddress" name="websiteAddress" placeholder="example.com" aria-required="false" aria-invalid="false" aria-describedby="websiteAddress-error" />
+                    <div id="websiteAddress-error" role="alert" aria-live="assertive"></div>
                   </div>
                 </div>
               </div>
 
               <div class="form-group">
-                <label for="message">Message</label>
-                <textarea id="message" name="message" placeholder="Your message..."></textarea>
+                <label for="message" id="message-label">Message</label>
+                <textarea id="message" name="message" placeholder="Your message..." aria-required="false" aria-invalid="false" aria-describedby="message-error"></textarea>
+                <div id="message-error" role="alert" aria-live="assertive"></div>
               </div>
             </fieldset>
           </div>
 
           <!-- Step 5: Review -->
-          <div class="section" data-step="4">
+          <div class="section" data-step="4" role="group" aria-labelledby="step5-legend">
             <fieldset>
-              <legend>Review Your Information</legend>
+              <legend id="step5-legend">Review Your Information</legend>
               <p class="section-subtitle">Please review your details before submitting</p>
 
-              <div class="review-container" id="reviewContainer">
+              <div class="review-container" id="reviewContainer" role="region" aria-live="polite">
                 <!-- Review content will be populated here -->
               </div>
             </fieldset>
           </div>
 
-          <div class="navigation">
-            <button type="button" class="btn btn-secondary" id="prevBtn" style="visibility: hidden;">Previous</button>
-            <button type="button" class="btn btn-primary" id="nextBtn">Next</button>
-            <button type="submit" class="btn btn-primary" id="submitBtn" style="display: none;">Submit Inquiry</button>
+          <div class="navigation" role="navigation" aria-label="Form navigation">
+            <button type="button" class="btn btn-secondary" id="prevBtn" style="visibility: hidden;" aria-label="Go to previous step">Previous</button>
+            <button type="button" class="btn btn-primary" id="nextBtn" aria-label="Go to next step">Next</button>
+            <button type="submit" class="btn btn-primary" id="submitBtn" style="display: none;" aria-label="Submit inquiry form">Submit Inquiry</button>
           </div>
         </form>
       </div>
@@ -1392,14 +1443,20 @@ class WebInquiryForm extends HTMLElement {
     form.addEventListener("change", (e) => {
       // Clear validation errors when radio buttons are selected
       if (e.target.type === "radio" && e.target.classList.contains("invalid")) {
-        const radioGroup = e.target.closest('.form-group');
-        const allRadiosInGroup = radioGroup.querySelectorAll(`input[name="${e.target.name}"]`);
+        const radioName = e.target.name;
+        const allRadiosInGroup = form.querySelectorAll(`input[name="${radioName}"]`);
+
+        // Clear invalid state from all radios in group
         allRadiosInGroup.forEach(radio => {
           radio.classList.remove("invalid");
+          radio.setAttribute('aria-invalid', 'false');
         });
-        const errorMsg = radioGroup.querySelector('.error-message');
-        if (errorMsg) {
-          errorMsg.remove();
+
+        // Clear the error message for this radio group
+        const errorId = `${radioName}-error`;
+        const errorDiv = this.shadowRoot.getElementById(errorId);
+        if (errorDiv) {
+          errorDiv.textContent = '';
         }
       }
       this.validateCurrentStep();
@@ -1444,8 +1501,10 @@ class WebInquiryForm extends HTMLElement {
     phoneExtCheck.addEventListener("change", function () {
       if (this.checked) {
         phoneExtField.classList.add("show");
+        phoneExtField.setAttribute('aria-hidden', 'false');
       } else {
         phoneExtField.classList.remove("show");
+        phoneExtField.setAttribute('aria-hidden', 'true');
         phoneExtField.querySelector("input").value = "";
       }
     });
@@ -1461,8 +1520,10 @@ class WebInquiryForm extends HTMLElement {
     businessPhoneExtCheck.addEventListener("change", function () {
       if (this.checked) {
         businessPhoneExtField.classList.add("show");
+        businessPhoneExtField.setAttribute('aria-hidden', 'false');
       } else {
         businessPhoneExtField.classList.remove("show");
+        businessPhoneExtField.setAttribute('aria-hidden', 'true');
         businessPhoneExtField.querySelector("input").value = "";
       }
     });
@@ -1477,12 +1538,14 @@ class WebInquiryForm extends HTMLElement {
     websiteYes.addEventListener("change", function () {
       if (this.checked) {
         websiteAddressField.classList.add("show");
+        websiteAddressField.setAttribute('aria-hidden', 'false');
       }
     });
 
     websiteNo.addEventListener("change", function () {
       if (this.checked) {
         websiteAddressField.classList.remove("show");
+        websiteAddressField.setAttribute('aria-hidden', 'true');
         websiteAddressField.querySelector("input").value = "";
       }
     });
@@ -1595,27 +1658,19 @@ class WebInquiryForm extends HTMLElement {
     // Show error for required radio groups that aren't selected
     Object.entries(radioGroups).forEach(([groupName, group]) => {
       if (group.hasRequired && !group.isChecked) {
-        // Find the radio group container and show error
-        const firstRadio = group.elements[0];
-        const radioGroup = firstRadio.closest('.form-group');
-        if (radioGroup) {
-          // Remove existing error message for this group
-          const existingError = radioGroup.querySelector('.error-message');
-          if (existingError) {
-            existingError.remove();
-          }
-          
-          // Add error message to the radio group
-          const errorDiv = document.createElement("div");
-          errorDiv.className = "error-message";
+        // Find the error div for this radio group
+        const errorId = `${groupName}-error`;
+        const errorDiv = this.shadowRoot.getElementById(errorId);
+
+        if (errorDiv) {
           errorDiv.textContent = "Please select an option";
-          radioGroup.appendChild(errorDiv);
-          
-          // Add invalid class to all radios in the group
-          group.elements.forEach(radio => {
-            radio.classList.add("invalid");
-          });
         }
+
+        // Add invalid class to all radios in the group and set aria-invalid
+        group.elements.forEach(radio => {
+          radio.classList.add("invalid");
+          radio.setAttribute('aria-invalid', 'true');
+        });
       }
     });
   }
@@ -1678,18 +1733,28 @@ class WebInquiryForm extends HTMLElement {
 
   updateProgress() {
     const progressFill = this.shadowRoot.querySelector(".progress-fill");
+    const progressBar = this.shadowRoot.querySelector(".progress-bar");
     const stepIndicators = this.shadowRoot.querySelectorAll(".step-indicator");
 
     // Update progress bar
     const progress = (this.currentStep / (this.totalSteps - 1)) * 100;
     progressFill.style.width = `${progress}%`;
 
+    // Update ARIA progress
+    if (progressBar) {
+      progressBar.setAttribute('aria-valuenow', Math.round(progress));
+    }
+
     // Update step indicators
     stepIndicators.forEach((indicator, index) => {
       indicator.classList.remove("active", "completed");
 
+      // Remove aria-current from all
+      indicator.removeAttribute('aria-current');
+
       if (index === this.currentStep) {
         indicator.classList.add("active");
+        indicator.setAttribute('aria-current', 'step');
       } else if (this.completedSteps.has(index)) {
         indicator.classList.add("completed");
         indicator.querySelector(".step-dot").textContent = "✓";
@@ -1748,20 +1813,31 @@ class WebInquiryForm extends HTMLElement {
   showError(input, message) {
     this.removeError(input);
 
-    const errorDiv = document.createElement("div");
-    errorDiv.className = "error-message";
-    errorDiv.textContent = message;
-    input.parentElement.appendChild(errorDiv);
+    // Update ARIA attributes
+    input.setAttribute('aria-invalid', 'true');
+
+    // Use the pre-existing error div with role="alert"
+    const errorId = `${input.id}-error`;
+    const errorDiv = this.shadowRoot.getElementById(errorId);
+    if (errorDiv) {
+      errorDiv.textContent = message;
+    }
 
     input.classList.add("invalid");
     input.classList.remove("valid");
   }
 
   removeError(input) {
-    const errorDiv = input.parentElement.querySelector(".error-message");
+    // Update ARIA attributes
+    input.setAttribute('aria-invalid', 'false');
+
+    // Clear the error div
+    const errorId = `${input.id}-error`;
+    const errorDiv = this.shadowRoot.getElementById(errorId);
     if (errorDiv) {
-      errorDiv.remove();
+      errorDiv.textContent = '';
     }
+
     input.classList.remove("invalid");
   }
 
@@ -2014,12 +2090,13 @@ class WebInquiryForm extends HTMLElement {
             if (index === 0) section.classList.add("active");
           });
 
-        // Remove validation classes from all inputs after successful submission
+        // Remove validation classes and reset ARIA attributes from all inputs after successful submission
         const allInputs = this.shadowRoot.querySelectorAll(
           "input, textarea, select"
         );
         allInputs.forEach((input) => {
           input.classList.remove("valid", "invalid");
+          input.setAttribute('aria-invalid', 'false');
           this.removeError(input); // Also remove any error messages
         });
 
